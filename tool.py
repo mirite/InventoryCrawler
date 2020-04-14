@@ -9,17 +9,26 @@ def functionA():
   fileName = "find-"+search+".csv"
 
   page_list=[]
-  #page_list.append("https://www.hutchinsonfarmsupply.ca/inventory/v1/")
-  page_list.append('https://www.hutchinsonfarmsupply.ca/inventory/v1/Current/John-Deere/Tillage/Rippers')
+  page_list.append("https://www.hutchinsonfarmsupply.ca/inventory/v1/")
+  #page_list.append('https://www.hutchinsonfarmsupply.ca/inventory/v1/Current/John-Deere/Tillage/Rippers')
 
   f = open(fileName, "w+")
   f.close()
-
+  c=0
+  i=0
+  page=0
   # Find text objects
   found=[]
   for url in page_list:
     print('Searching: ',url)
-    page = requests.get(url)
+    try:
+      page = requests.get(url)
+    except:
+      print('Request Failed')
+      break
+      #print(found)
+      #break
+    
     # print(str(page))
     soup = BeautifulSoup(page.text, 'html.parser')
 
@@ -33,7 +42,11 @@ def functionA():
       if l.startswith('/inventory/') and not link in found:
           found.append(link)
           page_list.append('https://www.hutchinsonfarmsupply.ca' + l)
+          c=c+1
           print('Match Found: ' + l)
+          print(c, ' Matches')
+    i=i+1
+    print(i, ' pages searched, ', len(page_list), ' in queue')
 
   with open(fileName,'a', newline='') as tempLog:
       header=['Title','Link']
