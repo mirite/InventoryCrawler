@@ -17,39 +17,42 @@ def functionA():
   c=0
   i=0
   page=0
+  fail=0
+
   # Find text objects
   found=[]
   for url in page_list:
     print('Searching: ',url)
     try:
       page = requests.get(url)
+      fail=0
     except:
-      print('Request Failed')
-      break
-      #print(found)
-      #break
+      fail=fail+1
+      print('Request Failed ', fail)
+      if(fail>10):
+        print('Giving Up')
+        break
+      else:
+        page_list.append(url)
+        continue
     
     # print(str(page))
     soup = BeautifulSoup(page.text, 'html.parser')
 
-    title=soup.find('title').contents[0]
-    
-
     for a in soup.find_all('a', href=True):
       #print(url +": "+ a['href']) 
       l=a['href']
-      link={'Title':title,'Link':l}
-      if l.startswith('/inventory/') and not link in found:
+      link={'Link':l}
+      if l.startswith('/inventory/') and not '?' in l and not link in found:
           found.append(link)
           page_list.append('https://www.hutchinsonfarmsupply.ca' + l)
           c=c+1
           print('Match Found: ' + l)
-          print(c, ' Matches')
     i=i+1
-    print(i, ' pages searched, ', len(page_list), ' in queue')
+    print(i, ' pages searched of ', len(page_list), ' pages found')
 
   with open(fileName,'a', newline='') as tempLog:
-      header=['Title','Link']
+      header=['Link']
       csv.DictWriter(tempLog,header,delimiter=',', lineterminator='\n').writerows(found)
       print("Wrote to File "+fileName)
 
