@@ -10,7 +10,7 @@ with open('find-a.csv', 'r') as f_list:
     for url in reader:
         url=url[0]
         
-        if(re.search('\d{7,10}$',url)):
+        if(re.search(r'\d{7,10}$',url)):
             url=url.replace('/inventory/v1/Current/','')
             url=url.replace('/',',')
             url=url.replace('-',' ')
