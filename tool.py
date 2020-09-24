@@ -45,6 +45,8 @@ def functionA():
       l=a['href']
       link={'Link':l}
       if l[0] != "#" and ("https://darkcitycoffee.local" in l or l[0] == "/") and not ".png" in l and not ".jpg" in l and not "/product/" in l and not "/product-category/" in l and not "/uploads/" in l and not '?' in l and not link in found:
+          
+          
           found.append(link)
           if "https://darkcitycoffee.local" in l:
             page_list.append(l)
