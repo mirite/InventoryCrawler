@@ -9,7 +9,7 @@ def functionA():
   fileName = "find-"+search+".csv"
 
   page_list=[]
-  page_list.append("https://darkcitycoffee.local/")
+  page_list.append("https://rootree.ca/")
   #page_list.append('https://www.hutchinsonfarmsupply.ca/inventory/v1/Current/John-Deere/Tillage/Rippers')
 
   f = open(fileName, "w+")
@@ -44,14 +44,14 @@ def functionA():
       #print(url +": "+ a['href']) 
       l=a['href']
       link={'Link':l}
-      if l[0] != "#" and ("https://darkcitycoffee.local" in l or l[0] == "/") and not ".png" in l and not ".jpg" in l and not "/product/" in l and not "/product-category/" in l and not "/uploads/" in l and not '?' in l and not link in found:
+      if l and l[0] != "#" and ("https://rootree.ca" in l or l[0] == "/") and not ".png" in l and not ".jpg" in l and not "/product/" in l and not "/product-category/" in l and not "/uploads/" in l and not '?' in l and not link in found:
           
           
           found.append(link)
-          if "https://darkcitycoffee.local" in l:
+          if "https://rootree.ca" in l:
             page_list.append(l)
           else:
-            page_list.append('http://darkcitycoffee.local' + l)
+            page_list.append('http://rootree.ca' + l)
           
           c=c+1
           print('Match Found: ' + l)
