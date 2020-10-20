@@ -1,10 +1,16 @@
 from bs4 import BeautifulSoup as BeautifulSoup
 import requests
 import json
+import os.path
+from os import path
 
-search = "1-877"
+search = "compost"
+use_cache = True
 output = []
 skips = []
+i = 0
+
+print("Starting search for term: '" + search + "'")
 
 pages=json.load(open('trims.json'))
 
@@ -23,13 +29,25 @@ for page in pages:
 
     print("Checking: " + url)
     try:
-        content = requests.get(url, verify=False)
+
+        content = ""
+
+        if(use_cache and path.exists("cache/" + page['title'] + ".dat")):
+            with open("cache/" + page['title'] + ".dat", "r") as cache_file:
+                content = cache_file.read()
+        else:
+            response = requests.get(url, verify=False)
+            content = response.content
+
+            with open("cache/" + page['title'] + ".dat", "w") as cache_file:
+                cache_file.write(content.url + "\n----\n" + content.text)
+                i = i + 1
 
         #soup = BeautifulSoup(content.text, 'html.parser')
         #results = soup.find_all(search)
-        if(search in content.text) :
+        if(search in content) :
 
-            output.append("URL:" + url + " Len:" + str(content.text.count(search)))
+            output.append("URL:" + url + " Len:" + str(content.count(search)))
     
     except Exception as e:
         skips.append(url)
