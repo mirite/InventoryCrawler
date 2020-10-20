@@ -28,11 +28,15 @@ for page in pages:
         url = "https://rootree.ca/" + url
 
     print("Checking: " + url)
+
     try:
 
         content = ""
 
         if(use_cache and path.exists("cache/" + page['title'] + ".dat")):
+            
+            print("Using cached page")
+
             with open("cache/" + page['title'] + ".dat", "r") as cache_file:
                 content = cache_file.read()
         else:
