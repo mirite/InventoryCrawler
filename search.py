@@ -2,7 +2,7 @@ from bs4 import BeautifulSoup as BeautifulSoup
 import requests
 import json
 
-search = "833"
+search = "1-877"
 output = []
 skips = []
 
@@ -19,7 +19,7 @@ for page in pages:
     if url[0] == "/":
         url = "https://rootree.ca" + url
     if not "http" in url:
-        url="https://rootree.ca/" + url
+        url = "https://rootree.ca/" + url
 
     print("Checking: " + url)
     try:
@@ -29,11 +29,11 @@ for page in pages:
         #results = soup.find_all(search)
         if(search in content.text) :
 
-            output.append("URL:" + url + " Len:" + content.count(search))
+            output.append("URL:" + url + " Len:" + str(content.text.count(search)))
     
-    except:
+    except Exception as e:
         skips.append(url)
-        print("Request failed for " + url)
+        print("Request failed for " + url + " " + str(e))
 
 print("Done!")
 

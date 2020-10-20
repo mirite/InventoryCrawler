@@ -12,6 +12,7 @@ with open('find-a.csv', 'r') as f_list:
         
         #if(re.search(r'\d{7,10}$',url)):
         url=url.replace('rootree.ca/','')
+        url=url.replace('https://','')
         #url=url.replace('/',',')
         #url=url.replace('-',' ')
         #url=url.replace('  Stouffville Ontario   ',',')
