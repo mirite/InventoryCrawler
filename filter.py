@@ -22,7 +22,7 @@ with open('find-a.csv', 'r') as f_list:
         #print(listing)
         if url!="":
             if(url[0]=="/"):
-                url=url[1:int(len(url)-1)]
+                url=url[1:int(len(url))]
             out=out+'{"title":"' + url.replace("/","") + '","address":"' + url + '"},'
 
 out=out[:-1] + ']'
