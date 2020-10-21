@@ -1,9 +1,12 @@
 from bs4 import BeautifulSoup as BeautifulSoup
 import requests
 import csv
+import certifi
+import urllib3
+http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
 
-domain = "https://darkcitycoffee.com"
-debug_detection = False
+domain = "https://rootree.ca"
+debug_detection = True
 
 # https://stackoverflow.com/questions/16208206/confused-by-python-file-mode-w
 
@@ -30,7 +33,8 @@ def functionA():
     print('Searching: ',url)
     #page = requests.get(url)
     try:
-      page = requests.get(url, verify=False)
+      page = requests.get(url)
+      #page = http.request('GET', url)
       fail=0
     except:
       fail=fail+1
