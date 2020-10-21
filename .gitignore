@@ -3,3 +3,5 @@ cache/*
 *.txt
 .DS_Store
 *.json
+.vscode
+*-cache

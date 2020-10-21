@@ -1,6 +1,7 @@
 from bs4 import BeautifulSoup as BeautifulSoup
 import requests
 import csv
+import os
 import certifi
 import urllib3
 http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
@@ -15,6 +16,9 @@ debug_detection = False
 def functionA():
   
   fileName = site_name + "-found-pages.csv"
+
+  if not os.path.exists(site_name + '-cache'):
+    os.makedirs(site_name + '-cache')
 
   page_list=[]
   page_list.append({"Link":domain})
@@ -53,6 +57,11 @@ def functionA():
       missing.append(url + " returned code " + str(page.status_code))
     
     soup = BeautifulSoup(page.text, 'html.parser')
+
+    cache_path = "cache/" + create_title(url) + ".dat"
+
+    with open(cache_path, "w") as cache_file:
+      cache_file.write(url + "\n----\n" + page.text)
 
     for a in soup.find_all('a', href=True):
       #print(url +": "+ a['href']) 
@@ -103,10 +112,7 @@ def functionA():
     out = "["
     for obj in found:
       url = obj['Link']
-      title=url.replace("/","")
-      title=title.replace(".","dot")
-      title=title.replace("?","query")
-      title=title.replace(":","")
+      title = create_title(url)
       out=out+'{"title":"' + title + '","address":"' + url + '"},'
     out=out[:-1] + ']'
     output.write(out)
@@ -122,6 +128,13 @@ def functionA():
     print("Wrote to missing_log.txt")
 
   print("I'm Done! Take a look at the csv named "+fileName+"!")
+
+def create_title(url):
+  title=url.replace("/","")
+  title=title.replace(".","dot")
+  title=title.replace("?","query")
+  title=title.replace(":","")
+  return title
 
 if __name__ == '__main__':
    functionA()
