@@ -7,10 +7,9 @@ import certifi
 import urllib3
 http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
 
-search = "1-833"
-site_name = "rootree"
+import config
+import search_config
 
-use_cache = True
 output = []
 skips = []
 i = 0
@@ -18,12 +17,12 @@ x = 0
 hit_count = 0
 hit_pages = 0
 
-if not os.path.exists(site_name + '-cache'):
-    os.makedirs(site_name + '-cache')
+if not os.path.exists(config.site_name + '/cache'):
+    os.makedirs(config.site_name + '/cache')
 
-print("Starting search for term: '" + search + "'")
+print("Starting search for term: '" + search_config.search + "'")
 
-pages=json.load(open('pages.json'))
+pages=json.load(open(config.site_name + '/pages.json'))
 
 for page in pages:
 
@@ -38,9 +37,9 @@ for page in pages:
     try:
 
         content = ""
-        cache_path = site_name + "-cache/" + page['title'] + ".dat"
+        cache_path = config.site_name + "/cache/" + page['title'] + ".dat"
 
-        if(use_cache and path.exists(cache_path)):
+        if(search_config.use_cache and path.exists(cache_path)):
             
             #print("Using cached page " + cache_path)
 
@@ -58,10 +57,10 @@ for page in pages:
         #soup = BeautifulSoup(content.text, 'html.parser')
         #results = soup.find_all(search)
         #print(content)
-        if(search in content) :
-            hit_count = hit_count + content.count(search)
+        if(search_config.search in content) :
+            hit_count = hit_count + content.count(search_config.search)
             hit_pages = hit_pages + 1
-            output.append("URL:" + url + " Len:" + str(content.count(search)))
+            output.append("URL:" + url + " Len:" + str(content.count(search_config.search)))
     
     except Exception as e:
         skips.append(url)
