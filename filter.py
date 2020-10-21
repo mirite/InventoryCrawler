@@ -11,8 +11,8 @@ with open('find-a.csv', 'r') as f_list:
         url=url[0]
         
         #if(re.search(r'\d{7,10}$',url)):
-        url=url.replace('rootree.ca/','')
-        url=url.replace('https://','')
+        #url=url.replace('rootree.ca/','')
+        #url=url.replace('https://','')
         #url=url.replace('/',',')
         #url=url.replace('-',' ')
         #url=url.replace('  Stouffville Ontario   ',',')
@@ -24,7 +24,11 @@ with open('find-a.csv', 'r') as f_list:
         if url!="":
             if(url[0]=="/"):
                 url=url[1:int(len(url))]
-            out=out+'{"title":"' + url.replace("/","") + '","address":"' + url + '"},'
+            title=url.replace("/","")
+            title=title.replace(".","dot")
+            title=title.replace("?","query")
+            title=title.replace("://","")
+            out=out+'{"title":"' + title + '","address":"' + url + '"},'
 
 out=out[:-1] + ']'
 #print(out)

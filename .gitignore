@@ -1,1 +1,5 @@
-/cache
+cache/*
+*.csv
+*.txt
+.DS_Store
+trims.json
