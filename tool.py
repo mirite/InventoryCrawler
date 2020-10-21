@@ -58,7 +58,7 @@ def functionA():
     
     soup = BeautifulSoup(page.text, 'html.parser')
 
-    cache_path = "cache/" + create_title(url) + ".dat"
+    cache_path = site_name + "-cache/" + create_title(url) + ".dat"
 
     with open(cache_path, "w") as cache_file:
       cache_file.write(url + "\n----\n" + page.text)
