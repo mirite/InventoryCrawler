@@ -57,6 +57,10 @@ for page in pages:
         #soup = BeautifulSoup(content.text, 'html.parser')
         #results = soup.find_all(search)
         #print(content)
+        if(not search_config.case_sensitive):
+            content=content.lower()
+            search_config.search = search_config.search.lower()
+            
         if(search_config.search in content) :
             hit_count = hit_count + content.count(search_config.search)
             hit_pages = hit_pages + 1
