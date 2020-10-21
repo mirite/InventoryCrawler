@@ -34,6 +34,8 @@ def functionA():
   found=[]
   rejected=[]
   missing=[]
+  scripts=[]
+  images=[]
 
   for link_object in page_list:
     url = link_object['Link']
@@ -63,6 +65,14 @@ def functionA():
     with open(cache_path, "w") as cache_file:
       cache_file.write(url + "\n----\n" + page.text)
 
+    for a in soup.find_all('script', src=True):
+      if not a['src'] in scripts:
+        scripts.append(a['src'])
+
+    for a in soup.find_all('img', src=True):
+      if not a['src'] in images:
+        images.append(a['src'])
+    
     for a in soup.find_all('a', href=True):
       #print(url +": "+ a['href']) 
       l = a['href']
@@ -109,25 +119,27 @@ def functionA():
       print("Wrote to File "+fileName)
   
   with open(site_name + "-pages.json","w") as output:
-    out = "["
-    for obj in found:
-      url = obj['Link']
-      title = create_title(url)
-      out=out+'{"title":"' + title + '","address":"' + url + '"},'
-    out=out[:-1] + ']'
+    out = create_json(found)
     output.write(out)
 
-  with open(site_name + "-rejected_log.txt",'w', newline='') as rejectedLog:
-    for item in rejected:
-      rejectedLog.write(item + "\n")
-    print("Wrote to rejected_log.txt")
-  
-  with open(site_name + "-missing_log.txt",'w', newline='') as missingLog:
-    for item in missing:
-      missingLog.write(item + "\n")
-    print("Wrote to missing_log.txt")
+  create_log(rejected, "rejected")
+  create_log(missing, "missing")
+  create_log(scripts, "assets")
 
-  print("I'm Done! Take a look at the csv named "+fileName+"!")
+def create_json(found):
+  out = "["
+  for obj in found:
+    url = obj['Link']
+    title = create_title(url)
+    out=out+'{"title":"' + title + '","address":"' + url + '"},'
+  out=out[:-1] + ']'
+  return out
+
+def create_log(file_list, name):
+  with open(site_name + "-" + name + "_log.txt",'w', newline='') as rejectedLog:
+    for item in file_list:
+      rejectedLog.write(item + "\n")
+    print("Wrote to " + site_name  + "-" + name + "_log.txt")
 
 def create_title(url):
   title=url.replace("/","")
