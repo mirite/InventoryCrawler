@@ -7,7 +7,9 @@ import certifi
 import urllib3
 http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
 
-search = "1-877"
+search = "1-833"
+site_name = "rootree"
+
 use_cache = True
 output = []
 skips = []
@@ -15,6 +17,9 @@ i = 0
 x = 0
 hit_count = 0
 hit_pages = 0
+
+if not os.path.exists(site_name + '-cache'):
+    os.makedirs(site_name + '-cache')
 
 print("Starting search for term: '" + search + "'")
 
@@ -33,7 +38,7 @@ for page in pages:
     try:
 
         content = ""
-        cache_path = "cache/" + page['title'] + ".dat"
+        cache_path = site_name + "-cache/" + page['title'] + ".dat"
 
         if(use_cache and path.exists(cache_path)):
             
