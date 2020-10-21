@@ -6,8 +6,8 @@ import certifi
 import urllib3
 http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
 
-domain = "https://rootree.ca"
-site_name = "rootree"
+domain = "https://darkcitycoffee.com"
+site_name = "darkcity"
 
 debug_detection = False
 
@@ -42,7 +42,7 @@ def functionA():
     print('Searching: ',url)
     #page = requests.get(url)
     try:
-      page = requests.get(url)
+      page = requests.get(url, headers={'User-Agent': 'Mozilla/5.0'})
       #page = http.request('GET', url)
       fail=0
     except:
