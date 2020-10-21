@@ -2,7 +2,7 @@ from bs4 import BeautifulSoup as BeautifulSoup
 import requests
 import csv
 
-domain = "https://rootree.ca"
+domain = "https://darkcitycoffee.com"
 debug_detection = False
 
 # https://stackoverflow.com/questions/16208206/confused-by-python-file-mode-w
@@ -91,7 +91,8 @@ def functionA():
       print("Wrote to File "+fileName)
 
   with open("rejected_log.txt",'w', newline='') as rejectedLog:
-    rejectedLog.writelines(rejected)
+    for item in rejected:
+      rejectedLog.write(item)
     print("Wrote to rejectedLog.txt")
 
   print("I'm Done! Take a look at the csv named "+fileName+"!")
