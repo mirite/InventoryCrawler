@@ -101,7 +101,7 @@ def functionA():
       title=url.replace("/","")
       title=title.replace(".","dot")
       title=title.replace("?","query")
-      title=title.replace("://","")
+      title=title.replace(":","")
       out=out+'{"title":"' + title + '","address":"' + url + '"},'
     out=out[:-1] + ']'
     output.write(out)
