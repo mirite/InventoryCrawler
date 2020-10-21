@@ -3,8 +3,11 @@ import requests
 import json
 import os.path
 from os import path
+import certifi
+import urllib3
+http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
 
-search = "pages/why-flexible"
+search = "1-877"
 use_cache = True
 output = []
 skips = []
@@ -15,7 +18,7 @@ hit_pages = 0
 
 print("Starting search for term: '" + search + "'")
 
-pages=json.load(open('trims.json'))
+pages=json.load(open('pages.json'))
 
 for page in pages:
 
@@ -24,11 +27,6 @@ for page in pages:
     if len(url) == 0 or "#" in url:
         skips.append(url)
         continue
-
-    if url[0] == "/":
-        url = "https://rootree.ca" + url
-    if not "http" in url:
-        url = "https://rootree.ca/" + url
 
     #print("Checking: " + url)
 
@@ -45,7 +43,7 @@ for page in pages:
                 content = cache_file.read()
                 x = x + 1
         else:
-            response = requests.get(url, verify=False)
+            response = requests.get(url)
             content = str(response.content)
 
             with open(cache_path, "w") as cache_file:

@@ -6,13 +6,13 @@ import urllib3
 http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
 
 domain = "https://rootree.ca"
-debug_detection = True
+debug_detection = False
 
 # https://stackoverflow.com/questions/16208206/confused-by-python-file-mode-w
 
 def functionA():
-  search = "a"
-  fileName = "find-"+search+".csv"
+  
+  fileName = "found-pages.csv"
 
   page_list=[]
   page_list.append({"Link":domain})
@@ -93,10 +93,22 @@ def functionA():
       header=['Link']
       csv.DictWriter(tempLog,header,delimiter=',', lineterminator='\n').writerows(found)
       print("Wrote to File "+fileName)
+  
+  with open("pages.json","w") as output:
+    out = "["
+    for obj in found:
+      url = obj['Link']
+      title=url.replace("/","")
+      title=title.replace(".","dot")
+      title=title.replace("?","query")
+      title=title.replace("://","")
+      out=out+'{"title":"' + title + '","address":"' + url + '"},'
+    out=out[:-1] + ']'
+    output.write(out)
 
   with open("rejected_log.txt",'w', newline='') as rejectedLog:
     for item in rejected:
-      rejectedLog.write(item)
+      rejectedLog.write(item + "\n")
     print("Wrote to rejectedLog.txt")
 
   print("I'm Done! Take a look at the csv named "+fileName+"!")
@@ -108,6 +120,8 @@ def functionB():
     reader = csv.reader(f_list)
     page_list2 = list(reader)
     print(page_list2)
+  
+
 
 
 
