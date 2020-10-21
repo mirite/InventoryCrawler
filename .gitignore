@@ -2,5 +2,4 @@ cache/*
 *.csv
 *.txt
 .DS_Store
-pages.json
-trims.json
+*.json

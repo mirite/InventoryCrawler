@@ -5,14 +5,16 @@ import certifi
 import urllib3
 http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
 
-domain = "https://darkcitycoffee.com"
-debug_detection = True
+domain = "https://rootree.ca"
+site_name = "rootree"
+
+debug_detection = False
 
 # https://stackoverflow.com/questions/16208206/confused-by-python-file-mode-w
 
 def functionA():
   
-  fileName = "found-pages.csv"
+  fileName = site_name + "-found-pages.csv"
 
   page_list=[]
   page_list.append({"Link":domain})
@@ -27,6 +29,7 @@ def functionA():
   # Find text objects
   found=[]
   rejected=[]
+  missing=[]
 
   for link_object in page_list:
     url = link_object['Link']
@@ -46,7 +49,9 @@ def functionA():
         page_list.append({"Link":url})
         continue
     
-    # print(str(page))
+    if (page.status_code != 200):
+      missing.append(url + " returned code " + str(page.status_code))
+    
     soup = BeautifulSoup(page.text, 'html.parser')
 
     for a in soup.find_all('a', href=True):
@@ -94,7 +99,7 @@ def functionA():
       csv.DictWriter(tempLog,header,delimiter=',', lineterminator='\n').writerows(found)
       print("Wrote to File "+fileName)
   
-  with open("pages.json","w") as output:
+  with open(site_name + "-pages.json","w") as output:
     out = "["
     for obj in found:
       url = obj['Link']
@@ -106,10 +111,15 @@ def functionA():
     out=out[:-1] + ']'
     output.write(out)
 
-  with open("rejected_log.txt",'w', newline='') as rejectedLog:
+  with open(site_name + "-rejected_log.txt",'w', newline='') as rejectedLog:
     for item in rejected:
       rejectedLog.write(item + "\n")
-    print("Wrote to rejectedLog.txt")
+    print("Wrote to rejected_log.txt")
+  
+  with open(site_name + "-missing_log.txt",'w', newline='') as missingLog:
+    for item in missing:
+      missingLog.write(item + "\n")
+    print("Wrote to missing_log.txt")
 
   print("I'm Done! Take a look at the csv named "+fileName+"!")
 
