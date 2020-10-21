@@ -1,7 +1,8 @@
-cache/*
+/*
 *.csv
 *.txt
 .DS_Store
 *.json
 .vscode
 *-cache
+__pycache__

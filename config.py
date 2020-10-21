@@ -1,4 +1,4 @@
-domain = "https://darkcitycoffee.com"
-site_name = "darkcity"
+domain = "https://rootree.ca"
+site_name = "rootree"
 
 debug_detection = False

@@ -8,10 +8,38 @@ http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
 
 import config
 
-fileName = config.site_name + "-found-pages.csv"
+#Helper functions
+def create_json(found):
+  out = "["
+  for obj in found:
+    url = obj['Link']
+    title = create_title(url)
+    out=out+'{"title":"' + title + '","address":"' + url + '"},'
+  out=out[:-1] + ']'
+  return out
 
-if not os.path.exists(config.site_name + '-cache'):
-  os.makedirs(config.site_name + '-cache')
+def create_log(file_list, name):
+  with open(config.site_name + "/" + name + "_log.txt",'w', newline='') as rejectedLog:
+    for item in file_list:
+      rejectedLog.write(item + "\n")
+    print("Wrote to " + config.site_name  + "/" + name + "_log.txt")
+
+def create_title(url):
+  title=url.replace("/","")
+  title=title.replace(".","dot")
+  title=title.replace("?","query")
+  title=title.replace(":","")
+  return title
+
+
+#Core code
+fileName = config.site_name + "/found-pages.csv"
+
+if not os.path.exists(config.site_name):
+  os.makedirs(config.site_name)
+
+if not os.path.exists(config.site_name + '/cache'):
+  os.makedirs(config.site_name + '/cache')
 
 page_list=[]
 page_list.append({"Link":config.domain})
@@ -53,7 +81,7 @@ for link_object in page_list:
   
   soup = BeautifulSoup(page.text, 'html.parser')
 
-  cache_path = config.site_name + "-cache/" + create_title(url) + ".dat"
+  cache_path = config.site_name + "/cache/" + create_title(url) + ".dat"
 
   with open(cache_path, "w") as cache_file:
     cache_file.write(url + "\n----\n" + page.text)
@@ -111,7 +139,7 @@ with open(fileName,'a', newline='') as tempLog:
     csv.DictWriter(tempLog,header,delimiter=',', lineterminator='\n').writerows(found)
     print("Wrote to File "+fileName)
 
-with open(config.site_name + "-pages.json","w") as output:
+with open(config.site_name + "/pages.json","w") as output:
   out = create_json(found)
   output.write(out)
 
@@ -119,25 +147,3 @@ create_log(rejected, "rejected")
 create_log(missing, "missing")
 create_log(scripts, "assets")
 create_log(images, "images")
-
-def create_json(found):
-  out = "["
-  for obj in found:
-    url = obj['Link']
-    title = create_title(url)
-    out=out+'{"title":"' + title + '","address":"' + url + '"},'
-  out=out[:-1] + ']'
-  return out
-
-def create_log(file_list, name):
-  with open(config.site_name + "-" + name + "_log.txt",'w', newline='') as rejectedLog:
-    for item in file_list:
-      rejectedLog.write(item + "\n")
-    print("Wrote to " + config.site_name  + "-" + name + "_log.txt")
-
-def create_title(url):
-  title=url.replace("/","")
-  title=title.replace(".","dot")
-  title=title.replace("?","query")
-  title=title.replace(":","")
-  return title
