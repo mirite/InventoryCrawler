@@ -5,8 +5,8 @@ import certifi
 import urllib3
 http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
 
-domain = "https://rootree.ca"
-debug_detection = False
+domain = "https://darkcitycoffee.com"
+debug_detection = True
 
 # https://stackoverflow.com/questions/16208206/confused-by-python-file-mode-w
 
@@ -113,18 +113,5 @@ def functionA():
 
   print("I'm Done! Take a look at the csv named "+fileName+"!")
 
-
-def functionB():
-  page_list2=[]
-  with open('page_list.csv', 'r') as f_list:
-    reader = csv.reader(f_list)
-    page_list2 = list(reader)
-    print(page_list2)
-  
-
-
-
-
 if __name__ == '__main__':
    functionA()
-   #functionB()
