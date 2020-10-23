@@ -1,25 +1,28 @@
 import json
+
+#File/operating system related imports
 import os.path
 import sys
 from os import path
 
+#Network related imports
 import certifi
 import requests
 import urllib3
-from bs4 import BeautifulSoup as BeautifulSoup
 
 http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where()) #To securely crawl SSL sites
 case_sensitive = False #Config options that can't be changed during runtime currently
 output = [] #Hit pages
 skips = [] #Pages that couldn't be searched
 sites = [] #Sites available to search
-i = 0
-x = 0
+new_files_read = 0
+cache_files_read = 0
 hit_count = 0
 hit_pages = 0
 domain = ""
 stamp = ""
 
+#Loads the configuration info from selected site
 def load_config():
 
   global domain
@@ -35,6 +38,18 @@ def load_config():
 
   domain = info['path']
   stamp = info['created']
+
+#Lists the sites available and logs them to sites[]
+def list_sites():
+
+  global sites
+
+  p=os.listdir(".")
+  for i in p:
+    if os.path.isdir(i) and i[0] != "." and i[0] != "_":
+        if(path.exists(i + "/info.json")):
+            sites.append(i)
+            print(i)
 
 print("Rootree Search Tool")
 
@@ -53,24 +68,22 @@ else:
 
   print("Please select a crawled site.\nSites available:")
   
-  p=os.listdir(".")
-  for i in p:
-    if os.path.isdir(i) and i[0] != "." and i[0] != "_":
-        if(path.exists(i + "/info.json")):
-            sites.append(i)
-            print(i)
+  list_sites()
 
+  site_entry = input("What name is the site saved as? ")
 
-  site_name = input("What name is the site saved as? ")
-
-  if(not site_name in sites):
+  #ideally reprompt for entry, currently crash if site not valid
+  if(not site_entry in sites):
       sys.exit("Site not found")
+  else:
+    site_name = site_entry
 
   load_config()
 
   print("Last crawled " + domain + " at " + stamp)
 
   search = input("What are you looking for? ")
+
   cache_prompt = input("Do you want to use the cached files? ")
 
   if( "y" in cache_prompt.lower() ):
@@ -78,60 +91,66 @@ else:
   else:
     use_cache = False
 
-print("Starting Search")
-
+#Make sure the cache directory is ready to use
 if not os.path.exists(site_name + '/cache'):
     os.makedirs(site_name + '/cache')
 
 print("Starting search for term: '" + search + "'")
 
-pages=json.load(open(site_name + '/pages.json'))
+page_list = site_name + '/pages.json'
 
+if(path.exists(page_list)):
+  pages=json.load(open(page_list))
+else:
+  sys.exit("Page list missing for " + site_name + " please recrawl")
+
+#Loop through all pages
 for page in pages:
 
     url = page['address']
 
+    #Check that we aren't searching non-existent or link pages
     if len(url) == 0 or "#" in url:
         skips.append(url)
         continue
-
-    #print("Checking: " + url)
-
+    
+    #A nice try statement in case network fails
     try:
 
         content = ""
         cache_path = site_name + "/cache/" + page['title'] + ".dat"
 
+        #If using cached files and the cache for the specific page exists
         if(use_cache and path.exists(cache_path)):
-            
-            #print("Using cached page " + cache_path)
 
             with open(cache_path, "r") as cache_file:
                 content = cache_file.read()
-                x = x + 1
+                cache_files_read = cache_files_read + 1
         else:
+            #Grab page contents
             response = requests.get(url)
             content = str(response.content)
 
+            #Create cache file of page
             with open(cache_path, "w") as cache_file:
                 cache_file.write(url + "\n----\n" + content)
-                i = i + 1
+                new_files_read = new_files_read + 1
 
-        #soup = BeautifulSoup(content.text, 'html.parser')
-        #results = soup.find_all(search)
-        #print(content)
+        #Convert content so that non case sensitive matching is possible
         if(not case_sensitive):
             content=content.lower()
             search = search.lower()
-            
+        
+        #This is the actul search condition
         if(search in content) :
             hit_count = hit_count + content.count(search)
             hit_pages = hit_pages + 1
             output.append("URL:" + url + " Len:" + str(content.count(search)))
     
     except Exception as e:
-        skips.append(url)
-        print("Request failed for " + url + " " + str(e))
+      #Track the pages that could be checked
+      skips.append(url)
+      print("Request failed for " + url + " " + str(e))
 
 print("Done!")
 
@@ -145,5 +164,5 @@ for result in output:
 
 print(str(hit_pages) + " Page Hits")
 print(str(hit_count) + " Total Hits")
-print(str(i) + " New Pages Checked")
-print(str(x) + " Cached Pages Checked")
+print(str(new_files_read) + " New Pages Checked")
+print(str(cache_files_read) + " Cached Pages Checked")
