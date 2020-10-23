@@ -4,9 +4,20 @@ import csv
 import os
 import certifi
 import urllib3
+import datetime
+import sys
 http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
 
-import config
+if(len(sys.argv) >= 2):
+
+  domain = str(sys.argv[1])
+  site_name = str(sys.argv[2])
+
+else:
+  domain = input("What is the domain you want to crawl (https://example.com)? ")
+  site_name = input("What name do you want to save the logs under? ")
+
+debug_detection = False
 
 #Helper functions
 def create_json(found):
@@ -19,10 +30,10 @@ def create_json(found):
   return out
 
 def create_log(file_list, name):
-  with open(config.site_name + "/" + name + "_log.txt",'w', newline='') as rejectedLog:
+  with open(site_name + "/" + name + "_log.txt",'w', newline='') as rejectedLog:
     for item in file_list:
       rejectedLog.write(item + "\n")
-    print("Wrote to " + config.site_name  + "/" + name + "_log.txt")
+    print("Wrote to " + site_name  + "/" + name + "_log.txt")
 
 def create_title(url):
   title=url.replace("/","")
@@ -33,16 +44,16 @@ def create_title(url):
 
 
 #Core code
-fileName = config.site_name + "/found-pages.csv"
+fileName = site_name + "/found-pages.csv"
 
-if not os.path.exists(config.site_name):
-  os.makedirs(config.site_name)
+if not os.path.exists(site_name):
+  os.makedirs(site_name)
 
-if not os.path.exists(config.site_name + '/cache'):
-  os.makedirs(config.site_name + '/cache')
+if not os.path.exists(site_name + '/cache'):
+  os.makedirs(site_name + '/cache')
 
 page_list=[]
-page_list.append({"Link":config.domain})
+page_list.append({"Link":domain})
 
 f = open(fileName, "w+")
 f.close()
@@ -81,7 +92,7 @@ for link_object in page_list:
   
   soup = BeautifulSoup(page.text, 'html.parser')
 
-  cache_path = config.site_name + "/cache/" + create_title(url) + ".dat"
+  cache_path = site_name + "/cache/" + create_title(url) + ".dat"
 
   with open(cache_path, "w") as cache_file:
     cache_file.write(url + "\n----\n" + page.text)
@@ -100,24 +111,24 @@ for link_object in page_list:
 
     if l:
 
-      link_in_scope = (config.domain in l or l[0] == "/" or not "http" in l)
+      link_in_scope = (domain in l or l[0] == "/" or not "http" in l)
       link_not_an_anchor = l[0] != "#"
       link_valid_type = not ".png" in l and not ".jpg" in l and not ".pdf" in l and not ".webp" in l and not ".svg" in l and not "tel:" in l and not "javascript:void" in l and not "mailto:" in l and not "fax:" in l and not "ts3server:" in l and not "callto:" in l
       link_not_excluded_dir = not "/uploads/" in l
 
       raw_link = l
 
-      if(config.debug_detection):
+      if(debug_detection):
         print(l)
         print(link_in_scope)
         print(link_not_an_anchor)
         print(link_valid_type)
         print(link_not_excluded_dir)
 
-      if not config.domain in l:
+      if not domain in l:
         if(l[0] != "/"):
           l = "/" + l
-        link = {'Link':config.domain + l}
+        link = {'Link':domain + l}
       else:
         link = {'Link':l}
 
@@ -139,8 +150,12 @@ with open(fileName,'a', newline='') as tempLog:
     csv.DictWriter(tempLog,header,delimiter=',', lineterminator='\n').writerows(found)
     print("Wrote to File "+fileName)
 
-with open(config.site_name + "/pages.json","w") as output:
+with open(site_name + "/pages.json","w") as output:
   out = create_json(found)
+  output.write(out)
+
+with open(site_name + "/info.json","w") as output:
+  out = '{"path":"' + domain + '","created":"' + str(datetime.datetime.now()) + '"}'
   output.write(out)
 
 create_log(rejected, "rejected")
