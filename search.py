@@ -1,41 +1,73 @@
-from bs4 import BeautifulSoup as BeautifulSoup
-import requests
 import json
 import os.path
-from os import path
-import certifi
-import urllib3
-http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
-
 import sys
+from os import path
 
+import certifi
+import requests
+import urllib3
+from bs4 import BeautifulSoup as BeautifulSoup
+
+http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where()) #To securely crawl SSL sites
+case_sensitive = False #Config options that can't be changed during runtime currently
+output = [] #Hit pages
+skips = [] #Pages that couldn't be searched
+sites = [] #Sites available to search
+i = 0
+x = 0
+hit_count = 0
+hit_pages = 0
+domain = ""
+stamp = ""
+
+def load_config():
+
+  global domain
+  global stamp
+
+  #Load the site info from the crawler
+  config_path = site_name + '/info.json'
+
+  if(path.exists(config_path)):
+    info=json.load(open(config_path))
+  else:
+    sys.exit("Site config not found")
+
+  domain = info['path']
+  stamp = info['created']
+
+print("Rootree Search Tool")
+
+#Decide if using args or prompting for options
 if(len(sys.argv) >= 2):
 
   site_name = str(sys.argv[1])
   search = str(sys.argv[2])
   use_cache = True
-  
-  info=json.load(open(site_name + '/info.json'))
 
-  domain = info['path']
-  stamp = info['created']
+  load_config()
+
   print("Last crawled " + domain + " at " + stamp)
 
 else:
-  print("Sites available:")
+
+  print("Please select a crawled site.\nSites available:")
   
   p=os.listdir(".")
   for i in p:
     if os.path.isdir(i) and i[0] != "." and i[0] != "_":
-        print(i)
+        if(path.exists(i + "/info.json")):
+            sites.append(i)
+            print(i)
 
 
   site_name = input("What name is the site saved as? ")
 
-  info=json.load(open(site_name + '/info.json'))
+  if(not site_name in sites):
+      sys.exit("Site not found")
 
-  domain = info['path']
-  stamp = info['created']
+  load_config()
+
   print("Last crawled " + domain + " at " + stamp)
 
   search = input("What are you looking for? ")
@@ -47,15 +79,6 @@ else:
     use_cache = False
 
 print("Starting Search")
-
-case_sensitive = False
-
-output = []
-skips = []
-i = 0
-x = 0
-hit_count = 0
-hit_pages = 0
 
 if not os.path.exists(site_name + '/cache'):
     os.makedirs(site_name + '/cache')
