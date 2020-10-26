@@ -21,6 +21,7 @@ hit_count = 0
 hit_pages = 0
 domain = ""
 stamp = ""
+site_count = 0 #Number of sites available
 
 #Loads the configuration info from selected site
 def load_config():
@@ -43,15 +44,17 @@ def load_config():
 def list_sites():
 
   global sites
-  x = 0
+  global site_count
 
   p=os.listdir(".")
   for i in p:
     if os.path.isdir(i) and i[0] != "." and i[0] != "_":
-        if(path.exists(i + "/info.json")):
-          x = x + 1
-          sites.append(i)
-          print(str(x) + ". " + i)
+        site_path = i + "/info.json"
+        if(path.exists(site_path)):
+          site_count = site_count + 1
+          info=json.load(open(site_path))
+          sites.append({"id":site_count,"name":i,"url":info['path'],"created":info['created']})
+          print(str(site_count) + ". " + i + " - Domain: " + info['path'] + " - Crawled: " + info['created'])
 
 print("Rootree Search Tool")
 
@@ -72,15 +75,16 @@ else:
   
   list_sites()
 
-  site_entry = input("What site do you want to search? ")
+  site_entry = int(input("What site do you want to search? "))
 
   #ideally reprompt for entry, currently crash if site not valid
-  if(not site_entry in sites):
+  if(site_entry > site_count or site_entry == 0):
       sys.exit("Site not found")
   else:
-    site_name = site_entry
+    site_name = sites[site_entry - 1]['name']
 
-  load_config()
+  domain = sites[site_entry - 1]['url']
+  stamp = sites[site_entry - 1]['created']
 
   print("Last crawled " + domain + " at " + stamp)
 
