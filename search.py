@@ -43,13 +43,15 @@ def load_config():
 def list_sites():
 
   global sites
+  x = 0
 
   p=os.listdir(".")
   for i in p:
     if os.path.isdir(i) and i[0] != "." and i[0] != "_":
         if(path.exists(i + "/info.json")):
-            sites.append(i)
-            print(i)
+          x = x + 1
+          sites.append(i)
+          print(str(x) + ". " + i)
 
 print("Rootree Search Tool")
 
@@ -70,7 +72,7 @@ else:
   
   list_sites()
 
-  site_entry = input("What name is the site saved as? ")
+  site_entry = input("What site do you want to search? ")
 
   #ideally reprompt for entry, currently crash if site not valid
   if(not site_entry in sites):

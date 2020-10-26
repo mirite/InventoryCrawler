@@ -44,22 +44,23 @@ def create_title(url):
   title=title.replace(":","")
   return title
 
+def create_site_title(url):
+  url = url.replace("https://","")
+  url = url.replace("http://","")
+  url = url.replace("www.","")
+  title = url.split(".")[0]
+  return title
 
 #Core code
 if(len(sys.argv) >= 2):
 
   domain = str(sys.argv[1])
-  site_name = str(sys.argv[2])
 
 else:
   domain = input("What is the domain you want to crawl (https://example.com)? ")
-  site_name = input("What name do you want to save the logs under? ")
+  
 
-#Make sure the found list is ready to write
-#Deprecated
-fileName = site_name + "/found-pages.csv"
-f = open(fileName, "w+")
-f.close()
+site_name = create_site_title(domain)
 
 #Make sure the site directory and site cache are ready to write
 if not os.path.exists(site_name):
@@ -67,6 +68,12 @@ if not os.path.exists(site_name):
 
 if not os.path.exists(site_name + '/cache'):
   os.makedirs(site_name + '/cache')
+
+#Make sure the found list is ready to write
+#Deprecated
+fileName = site_name + "/found-pages.csv"
+f = open(fileName, "w+")
+f.close()
 
 #List of pages to start
 page_list=[]
