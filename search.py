@@ -56,7 +56,7 @@ def list_sites():
           sites.append({"id":site_count,"name":i,"url":info['path'],"created":info['created']})
           print(str(site_count) + ". " + i + " - Domain: " + info['path'] + " - Crawled: " + info['created'])
 
-print("Rootree Search Tool")
+print("\n##########\n# Rootree Search Tool\n##########")
 
 #Decide if using args or prompting for options
 if(len(sys.argv) >= 2):
@@ -71,11 +71,11 @@ if(len(sys.argv) >= 2):
 
 else:
 
-  print("Please select a crawled site.\nSites available:")
+  print("\nPlease select a crawled site.\n\nSites available:")
   
   list_sites()
 
-  site_entry = int(input("What site do you want to search? "))
+  site_entry = int(input("\nWhat site do you want to search? "))
 
   #ideally reprompt for entry, currently crash if site not valid
   if(site_entry > site_count or site_entry == 0):
@@ -86,11 +86,9 @@ else:
   domain = sites[site_entry - 1]['url']
   stamp = sites[site_entry - 1]['created']
 
-  print("Last crawled " + domain + " at " + stamp)
+  search = input("\nWhat are you looking for? ")
 
-  search = input("What are you looking for? ")
-
-  cache_prompt = input("Do you want to use the cached files? ")
+  cache_prompt = input("\nDo you want to use the cached files? ")
 
   if( "y" in cache_prompt.lower() ):
     use_cache = True
@@ -101,7 +99,7 @@ else:
 if not os.path.exists(site_name + '/cache'):
     os.makedirs(site_name + '/cache')
 
-print("Starting search for term: '" + search + "'")
+print("\nStarting search for term: '" + search + "'")
 
 page_list = site_name + '/pages.json'
 
@@ -158,17 +156,19 @@ for page in pages:
       skips.append(url)
       print("Request failed for " + url + " " + str(e))
 
-print("Done!")
 
-print(str(len(skips)) + " Skipped Pages")
+print("\nSeacrh Complete!\n\n" + str(len(skips)) + " Skipped Pages")
 for result in skips:
     print(result)
 
-print(str(len(output)) + " Matching Pages")
+print("\n" + str(len(output)) + " Matching Pages")
 for result in output:
     print(result)
 
-print(str(hit_pages) + " Page Hits")
+print("\n" + str(hit_pages) + " Page Hits")
 print(str(hit_count) + " Total Hits")
 print(str(new_files_read) + " New Pages Checked")
 print(str(cache_files_read) + " Cached Pages Checked")
+print(str(new_files_read + cache_files_read) + " Total Pages Checked\n")
+
+print("Done!")
