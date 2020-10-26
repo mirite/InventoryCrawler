@@ -52,12 +52,14 @@ def create_site_title(url):
   return title
 
 #Core code
+print("\n##########\n# Rootree Web Crawler\n##########")
+
 if(len(sys.argv) >= 2):
 
   domain = str(sys.argv[1])
 
 else:
-  domain = input("What is the domain you want to crawl (https://example.com)? ")
+  domain = input("\nWhat is the domain you want to crawl (https://example.com)? ")
   
 
 site_name = create_site_title(domain)
@@ -88,6 +90,8 @@ rejected = [] #Links that don't meet criteria to follow
 missing = [] #Broken links
 scripts = [] #Linked scripts
 images = [] #Linked images
+
+print("\nStarting Crawl Of " + domain + "\n")
 
 #Work through list of pages, will epand over time
 for link_object in page_list:
@@ -193,14 +197,15 @@ for link_object in page_list:
         rejected.append(raw_link)
 
   pages_checked_counter = pages_checked_counter + 1
-  print(pages_checked_counter, ' pages searched of ', len(page_list), ' pages found')
+  print(pages_checked_counter, ' pages searched of ', len(page_list), ' pages found\n')
 
+print("Crawl complete. Writing files.\n")
 #Create the csv of links found DEPRECATED
 with open(fileName,'a', newline='') as tempLog:
 
     header=['Link']
     csv.DictWriter(tempLog,header,delimiter=',', lineterminator='\n').writerows(found)
-    print("Wrote to File "+fileName)
+    print("Wrote to "+fileName)
 
 #Create the JSON of links found
 with open(site_name + "/pages.json","w") as output:
@@ -218,4 +223,4 @@ with open(site_name + "/info.json","w") as output:
   out = '{"path":"' + domain + '","created":"' + str(datetime.datetime.now()) + '"}'
   output.write(out)
 
-print("All done!")
+print("\nAll done!")
