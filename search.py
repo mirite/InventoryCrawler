@@ -151,7 +151,7 @@ for page in pages:
         if(search in content) :
             hit_count = hit_count + content.count(search)
             hit_pages = hit_pages + 1
-            output.append("URL:" + url + " Len:" + str(content.count(search)))
+            output.append("URL: " + url + " - Number of occurrences: " + str(content.count(search)))
     
     except Exception as e:
       #Track the pages that could be checked

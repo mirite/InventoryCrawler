@@ -180,6 +180,7 @@ for link_object in page_list:
 
         link = {'Link':l}
 
+      link = {'Link': link['Link'].split("#")[0]}
       #Make sure all checks passed and that page hasn't already been checked
       if link_not_an_anchor and link_in_scope and link_valid_type and link_not_excluded_dir and not link in found:
           
