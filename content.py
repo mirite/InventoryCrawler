@@ -41,6 +41,7 @@ if not os.path.exists(site_name + '/converted'):
   os.makedirs(site_name + '/converted')
 
 total_changes = 0
+singles = 0
 
 #Loop through all pages
 for page in pages:
@@ -74,9 +75,21 @@ for page in pages:
             previous_changes = changes
 
             for d in a('div'):
+
+              del d['class']
+              del d['id']
+
               if(len(d.contents) == 0):
                 d.extract()
                 changes = changes + 1
+              elif(len(list(d.children)) == 1):
+                d.unwrap()
+                #print(str(d.children))
+                #d.replace_with(list(d.children)[0])
+                changes = changes + 1
+                singles = singles + 1
+
+
             
             for s in a('span'):
               if(len(s.contents) == 0):
@@ -95,4 +108,4 @@ for page in pages:
 
             output.write(a.prettify(formatter="minimal"))
 
-print("Done! ", str(total_changes), " empty elements removed")
+print("Done! ", str(total_changes), " empty elements removed. ", str(singles), " single children divs eliminated")
