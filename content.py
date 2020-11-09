@@ -85,6 +85,8 @@ stamp = ""
 total_changes = 0
 singles = 0
 image_index = 1
+saved_html_bytes = 0
+saved_content_bytes = 0
 
 ########
 # Main body
@@ -118,6 +120,8 @@ for page in pages:
         #Only deal with pages with shogun content
         for a in soup.find_all("div", "shogun-root"):
 
+          initial_size = len(a.prettify(formatter="minimal"))
+
           title = page['title']
           title = title.replace("httpsrootreedotca","") #fix hardcode value
           if(title == ""):
@@ -147,9 +151,11 @@ for page in pages:
               #if(child_count < 5):
               #  for child in d.findChildren("div", False):
               #    print("Child: " + str(child.contents) + "\n\n")
-              inner_content = str(d.string).strip()
+              inner_content = str(d.text).strip()
+              inner_content = inner_content.replace("\n","")
+              inner_content = inner_content.replace(" ","")
 
-              if(len(d.contents) == 0 or len(inner_content) == 0 or inner_content == " "):
+              if(len(list(d.findChildren())) == 0 and len(inner_content) == 0):
                 d.extract()
                 changes = changes + 1
               elif(child_count == 1):
@@ -190,17 +196,24 @@ for page in pages:
 
           html = a.prettify(formatter="minimal")
 
-          
+          final_html_size = len(html)
+          saved_html_bytes = saved_html_bytes + (initial_size - final_html_size)
+
           content = strip_structure(html)
+
+          final_content_size = len(content)
+          saved_content_bytes = saved_content_bytes + (initial_size - final_content_size)
 
           with open(converted_path,"w") as output:
             output.write(html)
 
           with open(content_path,"w") as output:
             output.write(content)
+          
+          print("Start:",initial_size,"Structure:",final_html_size,"Content:",final_content_size)
 
     #break #Uncomment to test only first file for debug
   except Exception as e:
     print("Error processing",page['title'],e)
 
-print("\nDone!", str(total_changes), "change made.", str(singles), "single child divs eliminated.\n")
+print("\nDone!", str(total_changes), "change made.", str(singles), "single child divs eliminated.\n",saved_html_bytes,"bytes saved with structure.",saved_content_bytes,"bytes saved with content only.\n")
