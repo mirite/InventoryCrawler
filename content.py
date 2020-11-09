@@ -14,6 +14,7 @@ from os import path
 import certifi
 import requests
 import urllib3
+import urllib
 
 from bs4 import BeautifulSoup as BeautifulSoup #Used for page navigation
 
@@ -67,8 +68,6 @@ def get_pages(config):
   if not os.path.exists(site_name + '/converted'):
     os.makedirs(site_name + '/converted')
 
-  if not os.path.exists(site_name + '/converted/content'):
-    os.makedirs(site_name + '/converted/content')
   return pages
 
 
@@ -84,6 +83,7 @@ domain = ""
 stamp = ""
 total_changes = 0
 singles = 0
+image_index = 1
 
 ########
 # Main body
@@ -106,7 +106,9 @@ for page in pages:
     with open(cache_path, "r") as cache_file:
 
         content = cache_file.read()
-        content=content.replace('style=""',"")
+        content = content.replace('style=""',"")
+        content = content.replace("\n","")
+        content = content.replace("data-src","src")
 
         soup = BeautifulSoup(content, 'html.parser')
 
@@ -142,8 +144,9 @@ for page in pages:
               #if(child_count < 5):
               #  for child in d.findChildren("div", False):
               #    print("Child: " + str(child.contents) + "\n\n")
+              inner_content = str(d.string).strip()
 
-              if(len(d.contents) == 0):
+              if(len(d.contents) == 0 or len(inner_content) == 0 or inner_content == " "):
                 d.extract()
                 changes = changes + 1
               elif(child_count == 1):
@@ -154,24 +157,37 @@ for page in pages:
                 singles = singles + 1
 
             for s in a('span'):
-              if(len(s.contents) == 0):
+              if(len(s.contents) == 0 or len(str(s.string).strip()) == 0):
                 s.extract()
                 changes = changes + 1
             
           total_changes = total_changes + changes
 
-          converted_path = site_name + "/converted/" + title + ".html"
-          content_path = site_name + "/converted/content/" + title + ".html"
+          base_path = site_name + '/converted/' + title
+          if not os.path.exists(base_path):
+            os.makedirs(base_path)
+
+          if not os.path.exists(base_path + "/images"):
+            os.makedirs(base_path + "/images")
+          
+
+          converted_path = base_path + "/" + title + ".html"
+          content_path = base_path + "/_" + title + ".html"
 
           for i in a.find_all('img'):
-            src = i['src']
-            with open('local_file_name','wb') as f:
-              f.write(bytes(requests.get(i['src'], headers={'User-Agent': 'Mozilla/5.0'})))
+            if(i.has_attr('src')):
+              src = i['src']
+              split_src = src.split(".")
+              #file_type = "." + split_src[len(split_src)-1]
+              file_type = ".jpg"
+              new_path = base_path + "/images/" + "image_" + str(image_index) + file_type
+              urllib.request.urlretrieve(src, new_path)
+              i['src'] = "images/" + "image_" + str(image_index) + file_type
+              image_index = image_index + 1
 
           html = a.prettify(formatter="minimal")
 
           
-
           content = strip_structure(html)
 
           with open(converted_path,"w") as output:
