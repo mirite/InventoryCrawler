@@ -34,6 +34,7 @@ def strip_meta(a):
   del a['data-shogun-site-id']
   del a['data-shogun-variant-id']
   del a['data-col-grid-mode-on']
+  del a['data-shg-href-target']
 
 #Remove divs and pretty up the html for writing
 def strip_structure(html):
@@ -119,6 +120,8 @@ for page in pages:
 
           title = page['title']
           title = title.replace("httpsrootreedotca","") #fix hardcode value
+          if(title == ""):
+            title = "no_title"
           
           print("Converting page", title)
 
