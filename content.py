@@ -163,7 +163,15 @@ for page in pages:
           converted_path = site_name + "/converted/" + title + ".html"
           content_path = site_name + "/converted/content/" + title + ".html"
 
+          for i in a.find_all('img'):
+            src = i['src']
+            with open('local_file_name','wb') as f:
+              f.write(bytes(requests.get(i['src'], headers={'User-Agent': 'Mozilla/5.0'})))
+
           html = a.prettify(formatter="minimal")
+
+          
+
           content = strip_structure(html)
 
           with open(converted_path,"w") as output:
