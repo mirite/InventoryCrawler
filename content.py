@@ -46,66 +46,82 @@ singles = 0
 #Loop through all pages
 for page in pages:
 
-    cache_path = site_name + "/cache/" + page['title'] + ".dat"
-    with open(cache_path, "r") as cache_file:
+  cache_path = site_name + "/cache/" + page['title'] + ".dat"
+  with open(cache_path, "r") as cache_file:
 
-        content = cache_file.read()
-        soup = BeautifulSoup(content, 'html.parser')
+      content = cache_file.read()
+      content=content.replace("\n","")
+
+      soup = BeautifulSoup(content, 'html.parser')
+
+      passes = 0 #Right now I'm doing three passes with no changes
+      
+      #Only deal with pages with shogun content
+      for a in soup.find_all("div", "shogun-root"):
+
+        title = page['title']
+        title = title.replace("httpsrootreedotca","") #fix hardcode value
+        del a['class']
+        del a['id']
 
         
-        
-        #Only deal with pages with shogun content
-        for a in soup.find_all("div", "shogun-root"):
 
-          title = page['title']
-          title = title.replace("httpsrootreedotca","") #fix hardcode value
+        print("Converting page ", title)
+
+        #Remove link tags and scripts from the page
+        [s.extract() for s in a('script')]
+        [s.extract() for s in a('link')]
+
+        changes = 0
+
+        while (True):
+
+          previous_changes = changes
+
+          for d in a('div'):
+
+            del d['class']
+            del d['id']
+
+            child_count = len(list(d.findChildren("div", False)))
+            print(str(child_count) + " children. ") #+ str(d.contents))
+
+            if(child_count < 5):
+              for child in d.findChildren("div", False):
+                print("Child: " + str(child.contents) + "\n\n")
+
+            if(len(d.contents) == 0):
+              d.extract()
+              changes = changes + 1
+            elif(child_count == 1):
+              d.unwrap()
+              #print(str(d.children))
+              #d.replace_with(list(d.children)[0])
+              changes = changes + 1
+              singles = singles + 1
+
 
           
+          for s in a('span'):
+            if(len(s.contents) == 0):
+              s.extract()
+              changes = changes + 1
+          
+          #Only leave loop if there were no additional changes
+          if(changes == previous_changes and passes > 2):
+            passes = 0
+            break
+          elif(changes == previous_changes):
+            print("Finished pass " + str(passes + 1))
+            passes = passes + 1
 
-          print("Converting page ", title)
+        total_changes = total_changes + changes
 
-          #Remove link tags and scripts from the page
-          [s.extract() for s in a('script')]
-          [s.extract() for s in a('link')]
+        converted_path = site_name + "/converted/" + title + ".html"
 
-          changes = 0
+        with open(converted_path,"w") as output:
 
-          while (True):
+          output.write(a.prettify(formatter="minimal"))
+  break #Uncomment to test only first file for debug
 
-            previous_changes = changes
-
-            for d in a('div'):
-
-              del d['class']
-              del d['id']
-
-              if(len(d.contents) == 0):
-                d.extract()
-                changes = changes + 1
-              elif(len(list(d.children)) == 1):
-                d.unwrap()
-                #print(str(d.children))
-                #d.replace_with(list(d.children)[0])
-                changes = changes + 1
-                singles = singles + 1
-
-
-            
-            for s in a('span'):
-              if(len(s.contents) == 0):
-                s.extract()
-                changes = changes + 1
-            
-            #Only leave loop if there were no additional changes
-            if(changes == previous_changes):
-              break
-
-          total_changes = total_changes + changes
-
-          converted_path = site_name + "/converted/" + title + ".html"
-
-          with open(converted_path,"w") as output:
-
-            output.write(a.prettify(formatter="minimal"))
-
-print("Done! ", str(total_changes), " empty elements removed. ", str(singles), " single children divs eliminated")
+print("Done! ", str(total_changes), " change made. ", str(singles), " single children divs eliminated")
