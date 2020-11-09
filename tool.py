@@ -71,6 +71,8 @@ if not os.path.exists(site_name):
 if not os.path.exists(site_name + '/cache'):
   os.makedirs(site_name + '/cache')
 
+
+
 #Make sure the found list is ready to write
 #Deprecated
 fileName = site_name + "/found-pages.csv"

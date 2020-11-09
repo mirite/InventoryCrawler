@@ -44,13 +44,26 @@ total_changes = 0
 singles = 0
 
 #Loop through all pages
+
+def strip_meta(a):
+  del a['class']
+  del a['id']
+  del a['data-region']
+  del a['data-shogun-id']
+  del a['data-shogun-page-id']
+  del a['data-shogun-page-version-id']
+  del a['data-shogun-platform-type']
+  del a['data-shogun-site-id']
+  del a['data-shogun-variant-id']
+  del a['data-col-grid-mode-on']
+
 for page in pages:
 
   cache_path = site_name + "/cache/" + page['title'] + ".dat"
   with open(cache_path, "r") as cache_file:
 
       content = cache_file.read()
-      content=content.replace("\n","")
+      content=content.replace('style=""',"")
 
       soup = BeautifulSoup(content, 'html.parser')
 
@@ -61,8 +74,9 @@ for page in pages:
 
         title = page['title']
         title = title.replace("httpsrootreedotca","") #fix hardcode value
-        del a['class']
-        del a['id']
+        
+        strip_meta(a)
+
 
         
 
@@ -80,8 +94,7 @@ for page in pages:
 
           for d in a('div'):
 
-            del d['class']
-            del d['id']
+            strip_meta(d)
 
             child_count = len(list(d.findChildren("div", False)))
             print(str(child_count) + " children. ") #+ str(d.contents))
