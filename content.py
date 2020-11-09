@@ -34,6 +34,13 @@ def strip_meta(a):
   del a['data-shogun-variant-id']
   del a['data-col-grid-mode-on']
 
+#Remove divs and pretty up the html for writing
+def strip_structure(html):
+  content = html.replace("<div>","")
+  content = content.replace("</div>","")
+  content = ' '.join(content.split()) #get rid of excess white space
+  content_soup = BeautifulSoup(content, 'html.parser')
+  return content_soup.prettify(formatter="minimal")
 
 #Load the site info from the crawler
 def load_config(site_name):
@@ -59,6 +66,9 @@ def get_pages(config):
 
   if not os.path.exists(site_name + '/converted'):
     os.makedirs(site_name + '/converted')
+
+  if not os.path.exists(site_name + '/converted/content'):
+    os.makedirs(site_name + '/converted/content')
   return pages
 
 
@@ -143,8 +153,6 @@ for page in pages:
                 changes = changes + 1
                 singles = singles + 1
 
-
-            
             for s in a('span'):
               if(len(s.contents) == 0):
                 s.extract()
@@ -153,13 +161,19 @@ for page in pages:
           total_changes = total_changes + changes
 
           converted_path = site_name + "/converted/" + title + ".html"
+          content_path = site_name + "/converted/content/" + title + ".html"
+
+          html = a.prettify(formatter="minimal")
+          content = strip_structure(html)
 
           with open(converted_path,"w") as output:
-            output.write(a.prettify(formatter="minimal"))
+            output.write(html)
+
+          with open(content_path,"w") as output:
+            output.write(content)
 
     #break #Uncomment to test only first file for debug
   except Exception as e:
     print("Error processing",page['title'],e)
-
 
 print("\nDone!", str(total_changes), "change made.", str(singles), "single child divs eliminated.\n")
