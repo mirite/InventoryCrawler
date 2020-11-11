@@ -87,6 +87,7 @@ singles = 0
 image_index = 1
 saved_html_bytes = 0
 saved_content_bytes = 0
+info_file = []
 
 ########
 # Main body
@@ -114,6 +115,8 @@ for page in pages:
         content = content.replace("data-src","src")
 
         soup = BeautifulSoup(content, 'html.parser')
+
+        real_title = soup.title.string
 
         passes = 0 #Right now I'm doing three passes with no changes
         
@@ -210,10 +213,16 @@ for page in pages:
           with open(content_path,"w") as output:
             output.write(content)
           
+          info_file.append({"title":real_title,"path":content_path})
           print("Start:",initial_size,"Structure:",final_html_size,"Content:",final_content_size)
 
     #break #Uncomment to test only first file for debug
   except Exception as e:
     print("Error processing",page['title'],e)
+  
 
 print("\nDone!", str(total_changes), "change made.", str(singles), "single child divs eliminated.\n",saved_html_bytes,"bytes saved with structure.",saved_content_bytes,"bytes saved with content only.\n")
+
+with open(site_name + "/converted/converted.json","w") as w:
+  w.write(json.dumps(info_file))
+  print("Wrote JSON")
