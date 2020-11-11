@@ -213,7 +213,16 @@ for page in pages:
           with open(content_path,"w") as output:
             output.write(content)
           
-          info_file.append({"title":real_title,"path":content_path})
+          content_type = ""
+
+          if "blogs" in content_path:
+            content_type = "blog"
+          elif "pages" in content_path:
+            content_type = "page"
+          else:
+            content_type = "other"
+
+          info_file.append({"title":real_title,"content_type":content_type,"content_path":content_path,"media": base_path + "/images"})
           print("Start:",initial_size,"Structure:",final_html_size,"Content:",final_content_size)
 
     #break #Uncomment to test only first file for debug
