@@ -31,7 +31,7 @@ def create_json(found):
 
 #Saves the content of the logs
 def create_log(file_list, name):
-  with open(site_name + "/" + name + "_log.txt",'w', newline='') as rejectedLog:
+  with open(site_name + "/" + name + "_log.txt",'w', newline='', encoding="utf-8") as rejectedLog:
     for item in file_list:
       rejectedLog.write(item + "\n")
     print("Wrote to " + site_name  + "/" + name + "_log.txt")
@@ -106,10 +106,10 @@ for link_object in page_list:
     page = requests.get(url, headers={'User-Agent': 'Mozilla/5.0'})
     fails_in_a_row = 0 #Reset failed request meter
 
-  except:
+  except Error as err:
 
     fails_in_a_row = fails_in_a_row + 1
-    print('Request Failed ', fails_in_a_row)
+    print('Request Failed', fails_in_a_row,err)
 
     if(fails_in_a_row>10):
 
@@ -132,7 +132,7 @@ for link_object in page_list:
   #Create cache file
   cache_path = site_name + "/cache/" + create_title(url) + ".dat"
 
-  with open(cache_path, "w") as cache_file:
+  with open(cache_path, "w", encoding="utf-8") as cache_file:
     cache_file.write(url + "\n----\n" + page.text)
 
   #Loop through script tags on the page
@@ -203,14 +203,14 @@ for link_object in page_list:
 
 print("Crawl complete. Writing files.\n")
 #Create the csv of links found DEPRECATED
-with open(fileName,'a', newline='') as tempLog:
+with open(fileName,'a', newline='', encoding="utf-8") as tempLog:
 
     header=['Link']
     csv.DictWriter(tempLog,header,delimiter=',', lineterminator='\n').writerows(found)
     print("Wrote to "+fileName)
 
 #Create the JSON of links found
-with open(site_name + "/pages.json","w") as output:
+with open(site_name + "/pages.json","w", encoding="utf-8") as output:
   out = create_json(found)
   output.write(out)
 
@@ -221,7 +221,7 @@ create_log(scripts, "assets")
 create_log(images, "images")
 
 #Create the site "package file" only after everything else has been successfully created
-with open(site_name + "/info.json","w") as output:
+with open(site_name + "/info.json","w", encoding="utf-8") as output:
   out = '{"path":"' + domain + '","created":"' + str(datetime.datetime.now()) + '"}'
   output.write(out)
 
