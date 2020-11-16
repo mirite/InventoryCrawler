@@ -127,7 +127,7 @@ for page in pages:
         #If using cached files and the cache for the specific page exists
         if(use_cache and path.exists(cache_path)):
 
-            with open(cache_path, "r") as cache_file:
+            with open(cache_path, "r", encoding="utf-8") as cache_file:
                 content = cache_file.read()
                 cache_files_read = cache_files_read + 1
         else:
@@ -136,7 +136,7 @@ for page in pages:
             content = str(response.content)
 
             #Create cache file of page
-            with open(cache_path, "w") as cache_file:
+            with open(cache_path, "w", encoding="utf-8") as cache_file:
                 cache_file.write(url + "\n----\n" + content)
                 new_files_read = new_files_read + 1
 

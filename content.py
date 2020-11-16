@@ -107,7 +107,7 @@ for page in pages:
 
   try:
     cache_path = site_name + "/cache/" + page['title'] + ".dat"
-    with open(cache_path, "r") as cache_file:
+    with open(cache_path, "r", encoding="utf-8") as cache_file:
 
         content = cache_file.read()
         content = content.replace('style=""',"")
@@ -207,10 +207,10 @@ for page in pages:
           final_content_size = len(content)
           saved_content_bytes = saved_content_bytes + (initial_size - final_content_size)
 
-          with open(converted_path,"w") as output:
+          with open(converted_path,"w", encoding="utf-8") as output:
             output.write(html)
 
-          with open(content_path,"w") as output:
+          with open(content_path,"w", encoding="utf-8") as output:
             output.write(content)
           
           content_type = ""
