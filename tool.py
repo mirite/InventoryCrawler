@@ -95,7 +95,7 @@ images = [] #Linked images
 
 print("\nStarting Crawl Of " + domain + "\n")
 
-#Work through list of pages, will epand over time
+#Work through list of pages, will expand over time
 for link_object in page_list:
 
   url = link_object['Link'] #the current page to check 
@@ -106,7 +106,7 @@ for link_object in page_list:
     page = requests.get(url, headers={'User-Agent': 'Mozilla/5.0'})
     fails_in_a_row = 0 #Reset failed request meter
 
-  except Error as err:
+  except Exception as err:
 
     fails_in_a_row = fails_in_a_row + 1
     print('Request Failed', fails_in_a_row,err)
