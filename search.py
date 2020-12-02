@@ -77,7 +77,7 @@ else:
 
   site_entry = int(input("\nWhat site do you want to search? "))
 
-  #ideally reprompt for entry, currently crash if site not valid
+  #ideally re-prompt for entry, currently crash if site not valid
   if(site_entry > site_count or site_entry == 0):
       sys.exit("Site not found")
   else:
@@ -106,7 +106,7 @@ page_list = site_name + '/pages.json'
 if(path.exists(page_list)):
   pages=json.load(open(page_list))
 else:
-  sys.exit("Page list missing for " + site_name + " please recrawl")
+  sys.exit("Page list missing for " + site_name + " please re-crawl")
 
 #Loop through all pages
 for page in pages:
@@ -145,7 +145,7 @@ for page in pages:
             content=content.lower()
             search = search.lower()
         
-        #This is the actul search condition
+        #This is the actual search condition
         if(search in content) :
             hit_count = hit_count + content.count(search)
             hit_pages = hit_pages + 1
@@ -157,7 +157,7 @@ for page in pages:
       print("Request failed for " + url + " " + str(e))
 
 
-print("\nSeacrh Complete!\n\n" + str(len(skips)) + " Skipped Pages")
+print("\nSearch Complete!\n\n" + str(len(skips)) + " Skipped Pages")
 for result in skips:
     print(result)
 
