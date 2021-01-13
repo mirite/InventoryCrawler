@@ -25,6 +25,7 @@ from bs4 import BeautifulSoup as BeautifulSoup #Used for page navigation
 #Remove unwanted attributes from parent tag
 def strip_meta(a):
   del a['class']
+  del a['style']
   del a['id']
   del a['data-region']
   del a['data-shogun-id']
@@ -35,11 +36,19 @@ def strip_meta(a):
   del a['data-shogun-variant-id']
   del a['data-col-grid-mode-on']
   del a['data-shg-href-target']
+  del a['height']
+  del a['width']
+  del a['data-bgset']
+  del a['contenteditable']
+  if "href" in a:
+    a['href'] = "intentional404.php"
 
 #Remove divs and pretty up the html for writing
 def strip_structure(html):
   content = html.replace("<div>","")
   content = content.replace("</div>","")
+  content = content.replace("<span>","")
+  content = content.replace("</span>","")
   content = ' '.join(content.split()) #get rid of excess white space
   content_soup = BeautifulSoup(content, 'html.parser')
   return content_soup.prettify(formatter="minimal")
@@ -169,9 +178,13 @@ for page in pages:
                 singles = singles + 1
 
             for s in a('span'):
+              strip_meta(s)
               if(len(s.contents) == 0 or len(str(s.string).strip()) == 0):
                 s.extract()
                 changes = changes + 1
+            
+            for p in a('p'):
+              strip_meta(p)
             
           total_changes = total_changes + changes
 
@@ -202,7 +215,18 @@ for page in pages:
           final_html_size = len(html)
           saved_html_bytes = saved_html_bytes + (initial_size - final_html_size)
 
-          content = strip_structure(html)
+          bscontent = BeautifulSoup(strip_structure(html), 'html.parser')
+
+          for s in bscontent('a'):
+            strip_meta(s)
+
+          for s in bscontent('img'):
+            strip_meta(s)
+
+          for s in bscontent('h2'):
+            strip_meta(s)
+
+          content = bscontent.prettify(formatter="minimal")
 
           final_content_size = len(content)
           saved_content_bytes = saved_content_bytes + (initial_size - final_content_size)
@@ -225,7 +249,7 @@ for page in pages:
           info_file.append({"title":real_title,"content_type":content_type,"content_path":content_path,"media": base_path + "/images"})
           print("Start:",initial_size,"Structure:",final_html_size,"Content:",final_content_size)
 
-    #break #Uncomment to test only first file for debug
+    break #Uncomment to test only first file for debug
   except Exception as e:
     print("Error processing",page['title'],e)
   
