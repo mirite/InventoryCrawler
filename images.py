@@ -93,8 +93,24 @@ print(image_count, "images to download")
 #Loop through all images
 for image in images:
     try:
-        split_src = image.split(".")
-        file_type = "." + split_src[len(split_src)-1]
+        if image[0:2] == "//":
+            image = "https:" + image
+
+        file_type = ""
+
+        if "jpg" in image or "jpeg" in image:
+            file_type = ".jpg"
+        elif "png" in image:
+            file_type = ".png"
+        elif "gif" in image:
+            file_type = ".gif"
+        elif "webp" in image:
+            file_type = ".webp"
+        elif "svg" in image:
+            file_type = ".svg"
+        else:
+            file_type = ".jpg"
+
         new_path = site_name + "/images/" + "image_" + str(image_index) + file_type
         urllib.request.urlretrieve(image, new_path)
         image_index = image_index + 1
