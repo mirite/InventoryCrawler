@@ -23,6 +23,7 @@ domain = ""
 stamp = ""
 site_count = 0 #Number of sites available
 image_index = 0
+skip_count = 0
 
 #Loads the configuration info from selected site
 def load_config():
@@ -93,6 +94,9 @@ print(image_count, "images to download")
 #Loop through all images
 for image in images:
     try:
+
+        image_index = image_index + 1
+
         if image[0:2] == "//":
             image = "https:" + image
 
@@ -109,13 +113,20 @@ for image in images:
         elif "svg" in image:
             file_type = ".svg"
         else:
-            file_type = ".jpg"
+            file_type = "_ut.jpg"
 
         new_path = site_name + "/images/" + "image_" + str(image_index) + file_type
         urllib.request.urlretrieve(image, new_path)
-        image_index = image_index + 1
-        print("Downloaded",image_index,"of",image_count)
+        
+        print("Downloaded",image_index,"of",image_count,"(",skip_count," skipped)")
+
     except Exception as e:
         print("Error processing",image,e)
+        skips.append(image)
+        skip_count = skip_count + 1
 
-print("Done!")
+print("\nSkipped file: ")
+for skip in skips:
+    print(skip)
+
+print("\nDone!")
