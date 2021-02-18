@@ -6,6 +6,7 @@ import json
 #File/operating system related imports
 import os
 import sys
+import re
 
 import os.path
 from os import path
@@ -45,10 +46,14 @@ def strip_meta(a):
 
 #Remove divs and pretty up the html for writing
 def strip_structure(html):
-  content = html.replace("<div>","")
-  content = content.replace("</div>","")
-  content = content.replace("<span>","")
-  content = content.replace("</span>","")
+  html = str(html)
+  content = re.sub(r"<\/?div[A-Za-z\=\"\'\d\ \-]*>","",html)
+  content = re.sub(r"<\/?span[A-Za-z\=\"\'\d\ \-]*>","",content)
+  content = re.sub(r"<\/?meta[A-Za-z\=\"\'\d\ \-]*>","",content)
+  # content = html.replace("<div>","")
+  # content = content.replace("</div>","")
+  # content = content.replace("<span>","")
+  # content = content.replace("</span>","")
   content = ' '.join(content.split()) #get rid of excess white space
   content_soup = BeautifulSoup(content, 'html.parser')
   return content_soup.prettify(formatter="minimal")
@@ -130,7 +135,7 @@ for page in pages:
         passes = 0 #Right now I'm doing three passes with no changes
         
         #Only deal with pages with shogun content
-        for a in soup.find_all("div", "shogun-root"):
+        for a in soup.find_all("main"):
 
           initial_size = len(a.prettify(formatter="minimal"))
 
@@ -201,14 +206,22 @@ for page in pages:
 
           for i in a.find_all('img'):
             if(i.has_attr('src')):
-              src = i['src']
-              split_src = src.split(".")
-              #file_type = "." + split_src[len(split_src)-1]
-              file_type = ".jpg"
-              new_path = base_path + "/images/" + "image_" + str(image_index) + file_type
-              urllib.request.urlretrieve(src, new_path)
-              i['src'] = "images/" + "image_" + str(image_index) + file_type
-              image_index = image_index + 1
+              try:
+                src = i['src']
+
+                if(src[0:2] == "//"):
+                  src = "https:" + src
+
+                split_src = src.split(".")
+                #file_type = "." + split_src[len(split_src)-1]
+                file_type = ".jpg"
+                new_path = base_path + "/images/" + "image_" + str(image_index) + file_type
+                urllib.request.urlretrieve(src, new_path)
+                i['src'] = "images/" + "image_" + str(image_index) + file_type
+                image_index = image_index + 1
+              except Exception as e:
+                print("Error processing image",i,e)
+              
 
           html = a.prettify(formatter="minimal")
 
@@ -225,9 +238,20 @@ for page in pages:
 
           for s in bscontent('h2'):
             strip_meta(s)
+          
+          for s in bscontent('span'):
+            strip_meta(s)
+          
+          for s in bscontent('li'):
+            strip_meta(s)
+          
+          for s in bscontent('aside'):
+            strip_meta(s)
+          
+          for s in bscontent('nav'):
+            strip_meta(s)
 
-          content = bscontent.prettify(formatter="minimal")
-
+          content = strip_structure(bscontent.prettify(formatter="minimal"))
           final_content_size = len(content)
           saved_content_bytes = saved_content_bytes + (initial_size - final_content_size)
 
@@ -249,7 +273,7 @@ for page in pages:
           info_file.append({"title":real_title,"content_type":content_type,"content_path":content_path,"media": base_path + "/images"})
           print("Start:",initial_size,"Structure:",final_html_size,"Content:",final_content_size)
 
-    break #Uncomment to test only first file for debug
+    #break #Uncomment to test only first file for debug
   except Exception as e:
     print("Error processing",page['title'],e)
   
