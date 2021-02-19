@@ -252,6 +252,7 @@ for page in pages:
             strip_meta(s)
 
           content = strip_structure(bscontent.prettify(formatter="minimal"))
+          content = content.replace("\n","")
           final_content_size = len(content)
           saved_content_bytes = saved_content_bytes + (initial_size - final_content_size)
 
