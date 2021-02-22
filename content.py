@@ -46,17 +46,18 @@ def strip_meta(a):
 
 #Remove divs and pretty up the html for writing
 def strip_structure(html):
-  html = str(html)
+  
   content = re.sub(r"<\/?div[A-Za-z\=\"\'\d\ \-]*>","",html)
   content = re.sub(r"<\/?span[A-Za-z\=\"\'\d\ \-]*>","",content)
   content = re.sub(r"<\/?meta[A-Za-z\=\"\'\d\ \-]*>","",content)
+  content = re.sub(r"[\n\r\t\u000A]*","",content)
+  content = re.sub(r"\ +"," ",content)
   # content = html.replace("<div>","")
   # content = content.replace("</div>","")
   # content = content.replace("<span>","")
   # content = content.replace("</span>","")
-  content = ' '.join(content.split()) #get rid of excess white space
-  content_soup = BeautifulSoup(content, 'html.parser')
-  return content_soup.prettify(formatter="minimal")
+  #content = ' '.join(content.split()) #get rid of excess white space
+  return content
 
 #Load the site info from the crawler
 def load_config(site_name):
@@ -251,8 +252,7 @@ for page in pages:
           for s in bscontent('nav'):
             strip_meta(s)
 
-          content = strip_structure(bscontent.prettify(formatter="minimal"))
-          content = content.replace("\n","")
+          content = strip_structure(str(bscontent))
           final_content_size = len(content)
           saved_content_bytes = saved_content_bytes + (initial_size - final_content_size)
 
