@@ -103,7 +103,7 @@ for link_object in page_list:
 
   try:
 
-    page = requests.get(url, headers={'User-Agent': 'Mozilla/5.0'})
+    page = requests.get(url, headers={'User-Agent': 'Mozilla/5.0'}, allow_redirects=False)
     fails_in_a_row = 0 #Reset failed request meter
 
   except Exception as err:
