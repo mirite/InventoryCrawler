@@ -24,7 +24,7 @@ def create_json(found):
   out = "["
   for obj in found:
     url = obj['Link']
-    title = create_title(url)
+    title = obj['Title']
     out=out+'{"title":"' + title + '","address":"' + url + '"},'
   out=out[:-1] + ']'
   return out
@@ -42,6 +42,9 @@ def create_title(url):
   title=title.replace(".","dot")
   title=title.replace("?","query")
   title=title.replace(":","")
+  title=title.replace("|","")
+  title=title.replace('"',"")
+  title=title.replace("<title>","")
   return title
 
 def create_site_title(url):
@@ -87,7 +90,7 @@ f.close()
 
 #List of pages to start
 page_list=[]
-page_list.append({"Link":domain,"Source" : ""})
+page_list.append({"Link":domain,"Source" : "", "Title":"Home"})
 
 pages_checked_counter = 0
 page = 0
@@ -134,9 +137,14 @@ for link_object in page_list:
   
   #Parse the HTML
   soup = BeautifulSoup(page.text, 'html.parser')
+  current_title = create_title(str(soup.find('title')))
 
   #Create cache file
-  cache_path = site_name + "/cache/" + create_title(url) + ".dat"
+  cache_path = site_name + "/cache/" + current_title + ".dat"
+
+  for existing_page in found:
+    if(existing_page['Link'] == url):
+      existing_page['Title'] = current_title
 
   with open(cache_path, "w", encoding="utf-8") as cache_file:
     cache_file.write(url + "\n----\n" + page.text)
@@ -166,7 +174,7 @@ for link_object in page_list:
       #Various checks to make sure link should be followed
       link_in_scope = (domain in l or l[0] == "/" or not "http" in l)
       link_not_an_anchor = l[0] != "#"
-      link_valid_type = not ".png" in l and not ".jpg" in l and not ".pdf" in l and not ".webp" in l and not ".svg" in l and not "tel:" in l and not "javascript:void" in l and not "mailto:" in l and not "fax:" in l and not "ts3server:" in l and not "callto:" in l
+      link_valid_type = not ".png" in l and not "?s=" in l and not ".jpg" in l and not ".pdf" in l and not ".webp" in l and not ".svg" in l and not "tel:" in l and not "javascript:void" in l and not "mailto:" in l and not "fax:" in l and not "ts3server:" in l and not "callto:" in l
       link_not_excluded_dir = not "/uploads/" in l
 
       #Store a copy of unprocessed link
@@ -192,7 +200,7 @@ for link_object in page_list:
 
         link = {'Link':l,'Source': url}
 
-      link = {'Link': link['Link'].split("#")[0],'Source': url}
+      link = {'Link': link['Link'].split("#")[0],'Source': url,"Title":""}
       #Make sure all checks passed and that page hasn't already been checked
       if link_not_an_anchor and link_in_scope and link_valid_type and link_not_excluded_dir and not link['Link'] in get_links(found):
           
