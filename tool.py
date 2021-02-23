@@ -51,6 +51,12 @@ def create_site_title(url):
   title = url.split(".")[0]
   return title
 
+def get_links(found):
+  my_list=[]
+  for link in found:
+    my_list.append(link['Link'])
+  return my_list
+
 #Core code
 print("\n##########\n# Rootree Web Crawler\n##########")
 
@@ -81,7 +87,7 @@ f.close()
 
 #List of pages to start
 page_list=[]
-page_list.append({"Link":domain})
+page_list.append({"Link":domain,"Source" : ""})
 
 pages_checked_counter = 0
 page = 0
@@ -124,7 +130,7 @@ for link_object in page_list:
   #Page is giving error, log it
   if (page.status_code != 200):
 
-    missing.append(url + " returned code " + str(page.status_code))
+    missing.append(url + " returned code " + str(page.status_code) + " from " + link_object['Source'])
   
   #Parse the HTML
   soup = BeautifulSoup(page.text, 'html.parser')
@@ -180,22 +186,22 @@ for link_object in page_list:
         if(l[0] != "/"):
           l = "/" + l
 
-        link = {'Link':domain + l}
+        link = {'Link':domain + l,'Source': url}
 
       else:
 
-        link = {'Link':l}
+        link = {'Link':l,'Source': url}
 
-      link = {'Link': link['Link'].split("#")[0]}
+      link = {'Link': link['Link'].split("#")[0],'Source': url}
       #Make sure all checks passed and that page hasn't already been checked
-      if link_not_an_anchor and link_in_scope and link_valid_type and link_not_excluded_dir and not link in found:
+      if link_not_an_anchor and link_in_scope and link_valid_type and link_not_excluded_dir and not link['Link'] in get_links(found):
           
           page_list.append(link) #Add to list to check
           found.append(link) #Add to master list of links found
 
           print('Match Found: ' + l)
 
-      elif (raw_link not in rejected and link not in found):
+      elif (raw_link not in rejected and link['Link'] not in get_links(found)):
         rejected.append(raw_link)
 
   pages_checked_counter = pages_checked_counter + 1
@@ -203,11 +209,11 @@ for link_object in page_list:
 
 print("Crawl complete. Writing files.\n")
 #Create the csv of links found DEPRECATED
-with open(fileName,'a', newline='', encoding="utf-8") as tempLog:
+# with open(fileName,'a', newline='', encoding="utf-8") as tempLog:
 
-    header=['Link']
-    csv.DictWriter(tempLog,header,delimiter=',', lineterminator='\n').writerows(found)
-    print("Wrote to "+fileName)
+#     header=['Link']
+#     csv.DictWriter(tempLog,header,delimiter=',', lineterminator='\n').writerows(found)
+#     print("Wrote to "+fileName)
 
 #Create the JSON of links found
 with open(site_name + "/pages.json","w", encoding="utf-8") as output:
