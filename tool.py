@@ -150,16 +150,15 @@ for link_object in page_list:
 
     if(len(matches) > 0):
 
-      page_id = str(matches[0])
+      page_id = str(matches[0]) + "_"
 
     else:
 
       matches= re.findall(r'post\-id\-([\d]+)',page.text)
 
       if(len(matches) > 0):
-        page_id = str(matches[0])
+        page_id = str(matches[0]) + "_"
     
-    print(page_id)
   except Exception as e:
     print("Couldn't find page id")
     page_id="None"
@@ -173,7 +172,7 @@ for link_object in page_list:
 
   driver.get(url)
   sleep(1)
-  driver.get_screenshot_as_file(site_name + "/screenshots/" + page_id + "_" + current_title + ".png")
+  driver.get_screenshot_as_file(site_name + "/screenshots/" + page_id + current_title + ".png")
 
   with open(cache_path, "w", encoding="utf-8") as cache_file:
     cache_file.write(url + "\n----\n" + page.text)
