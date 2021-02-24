@@ -77,7 +77,7 @@ else:
 
   site_entry = int(input("\nWhat site do you want to search? "))
 
-  #ideally reprompt for entry, currently crash if site not valid
+  #ideally re-prompt for entry, currently crash if site not valid
   if(site_entry > site_count or site_entry == 0):
       sys.exit("Site not found")
   else:
@@ -106,7 +106,7 @@ page_list = site_name + '/pages.json'
 if(path.exists(page_list)):
   pages=json.load(open(page_list))
 else:
-  sys.exit("Page list missing for " + site_name + " please recrawl")
+  sys.exit("Page list missing for " + site_name + " please re-crawl")
 
 #Loop through all pages
 for page in pages:
@@ -127,7 +127,7 @@ for page in pages:
         #If using cached files and the cache for the specific page exists
         if(use_cache and path.exists(cache_path)):
 
-            with open(cache_path, "r") as cache_file:
+            with open(cache_path, "r", encoding="utf-8") as cache_file:
                 content = cache_file.read()
                 cache_files_read = cache_files_read + 1
         else:
@@ -136,7 +136,7 @@ for page in pages:
             content = str(response.content)
 
             #Create cache file of page
-            with open(cache_path, "w") as cache_file:
+            with open(cache_path, "w", encoding="utf-8") as cache_file:
                 cache_file.write(url + "\n----\n" + content)
                 new_files_read = new_files_read + 1
 
@@ -145,7 +145,7 @@ for page in pages:
             content=content.lower()
             search = search.lower()
         
-        #This is the actul search condition
+        #This is the actual search condition
         if(search in content) :
             hit_count = hit_count + content.count(search)
             hit_pages = hit_pages + 1
@@ -157,7 +157,7 @@ for page in pages:
       print("Request failed for " + url + " " + str(e))
 
 
-print("\nSeacrh Complete!\n\n" + str(len(skips)) + " Skipped Pages")
+print("\nSearch Complete!\n\n" + str(len(skips)) + " Skipped Pages")
 for result in skips:
     print(result)
 

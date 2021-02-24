@@ -1,8 +1,11 @@
 /*/
 *.csv
+*.html
+*.sql
 *.txt
 .DS_Store
 *.json
 .vscode
 *-cache
 __pycache__
+*.log
