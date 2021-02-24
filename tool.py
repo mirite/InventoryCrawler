@@ -172,7 +172,11 @@ for link_object in page_list:
 
   driver.get(url)
   sleep(1)
-  driver.get_screenshot_as_file(site_name + "/screenshots/" + page_id + current_title + ".png")
+
+  S = lambda X: driver.execute_script('return document.body.parentNode.scroll'+X)
+  driver.set_window_size(S('Width'),S('Height')) # May need manual adjustment                                                                                                                
+  driver.find_element_by_tag_name('body').screenshot(site_name + "/screenshots/" + page_id + current_title + ".png")
+  #driver.get_screenshot_as_file(site_name + "/screenshots/" + page_id + current_title + ".png")
 
   with open(cache_path, "w", encoding="utf-8") as cache_file:
     cache_file.write(url + "\n----\n" + page.text)
