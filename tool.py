@@ -9,6 +9,9 @@ import sys
 import certifi
 import requests
 import urllib3
+from selenium import webdriver
+from time import sleep
+import re
 
 from bs4 import BeautifulSoup as BeautifulSoup #Used for page navigation
 
@@ -80,7 +83,8 @@ if not os.path.exists(site_name):
 if not os.path.exists(site_name + '/cache'):
   os.makedirs(site_name + '/cache')
 
-
+if not os.path.exists(site_name + '/screenshots'):
+  os.makedirs(site_name + '/screenshots')
 
 #Make sure the found list is ready to write
 #Deprecated
@@ -104,6 +108,8 @@ images = [] #Linked images
 
 print("\nStarting Crawl Of " + domain + "\n")
 
+driver = webdriver.Firefox()
+
 #Work through list of pages, will expand over time
 for link_object in page_list:
 
@@ -114,7 +120,7 @@ for link_object in page_list:
 
     page = requests.get(url, headers={'User-Agent': 'Mozilla/5.0'}, allow_redirects=False)
     fails_in_a_row = 0 #Reset failed request meter
-
+    
   except Exception as err:
 
     fails_in_a_row = fails_in_a_row + 1
@@ -139,12 +145,35 @@ for link_object in page_list:
   soup = BeautifulSoup(page.text, 'html.parser')
   current_title = create_title(str(soup.find('title')))
 
+  try:
+    matches= re.findall(r'page\-id\-([\d]+)',page.text)
+
+    if(len(matches) > 0):
+
+      page_id = str(matches[0])
+
+    else:
+
+      matches= re.findall(r'post\-id\-([\d]+)',page.text)
+
+      if(len(matches) > 0):
+        page_id = str(matches[0])
+    
+    print(page_id)
+  except Exception as e:
+    print("Couldn't find page id")
+    page_id="None"
+
   #Create cache file
   cache_path = site_name + "/cache/" + current_title + ".dat"
 
   for existing_page in found:
     if(existing_page['Link'] == url):
       existing_page['Title'] = current_title
+
+  driver.get(url)
+  sleep(1)
+  driver.get_screenshot_as_file(site_name + "/screenshots/" + page_id + "_" + current_title + ".png")
 
   with open(cache_path, "w", encoding="utf-8") as cache_file:
     cache_file.write(url + "\n----\n" + page.text)
@@ -215,6 +244,7 @@ for link_object in page_list:
   pages_checked_counter = pages_checked_counter + 1
   print(pages_checked_counter, ' pages searched of ', len(page_list), ' pages found\n')
 
+driver.quit()
 print("Crawl complete. Writing files.\n")
 #Create the csv of links found DEPRECATED
 # with open(fileName,'a', newline='', encoding="utf-8") as tempLog:
