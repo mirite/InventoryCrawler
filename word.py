@@ -73,6 +73,8 @@ out_ext = ".docx"
 
 for page in pages:
 
+    print("Processing", page)
+
     rel_in_path, in_file = get_path(config, page, in_ext)
     rel_out_path, out_file = get_path(config, page, out_ext)
 
@@ -82,10 +84,19 @@ for page in pages:
     if not os.path.exists(base_out + rel_out_path):
         os.makedirs(base_out + rel_out_path)
     
-    print(in_path, out_path)
-    print(in_file, out_file)
-
     try:
-        output = pypandoc.convert_file(in_path, format='html', to='docx', outputfile=out_path, extra_args=['-RTS'])
+        with open(in_path, "r", encoding="utf-8") as f:
+            temp = f.read()
     except Exception as e:
         print("Error",in_file,e)
+        continue
+    
+    temp = page['address'] + "<br>" + temp
+    temp = re.sub(r"<img [^>]+>","(Image)",temp)
+
+    try:
+        output = pypandoc.convert_text(temp, format='html', to='docx', outputfile=out_path, extra_args=['-RTS'])
+    except Exception as e:
+        print("Error",in_file,e)
+
+print("Done!")
