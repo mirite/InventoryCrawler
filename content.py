@@ -199,22 +199,34 @@ for page in pages:
           total_changes = total_changes + changes
 
           relative_path = page["address"].replace(config["path"],"")
+
+          if(relative_path[0] == "/"):
+              relative_path = relative_path[1:]
+
+          print(relative_path)
           
+          if(len(relative_path) > 1 and "/" in relative_path):
 
-          if(len(relative_path) > 1):
+            if(relative_path[len(relative_path)-1]) == "/":
+              relative_path = relative_path[0:len(relative_path)-1]
 
-              if(relative_path[len(relative_path)-1]) == "/":
-                  relative_path = relative_path[0:len(relative_path)-1] + ".html"
-              else:
-                  relative_path = relative_path + ".html"
+            split_path = relative_path.rsplit("/",1)
+            file_name = split_path[1]
+            relative_path = split_path [0] + "/"
+            
+            if not ".html" in file_name:
+              file_name = file_name + ".html"
+
           else:
-              relative_path = "index.html"
+              file_name = "index.html"
+              relative_path = ""
           
-          converted_path = base_path + relative_path.replace(".html","_o.html")
-          content_path = base_path + relative_path
+          converted_path = base_path + relative_path + file_name.replace(".html","_o.html")
+          content_path = base_path + relative_path + file_name
 
-          print(converted_path, content_path)
-          image_path = base_path + relative_path.replace(".html","") + "/images"
+          image_path = base_path + relative_path + "images"
+          print(converted_path, content_path, image_path)
+          
           if not os.path.exists(image_path):
             os.makedirs(image_path)
 
