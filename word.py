@@ -7,6 +7,7 @@ import re
 import os.path
 from os import path
 import json
+from bs4 import BeautifulSoup as BeautifulSoup
 
 site_name = "rootree"
 
@@ -59,6 +60,23 @@ def get_path(config, page, ext):
 
     return relative_path, file_name
 
+def get_meta(path):
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            temp = f.read()
+    except Exception as e:
+        print("Error getting meta",in_file,e)
+        return ""
+    
+    soup = BeautifulSoup(temp, 'html.parser')
+    #print(temp)
+    meta = soup.find("meta",{"name":"description"})
+
+    if(meta):
+        return str(meta['content'])
+    else:
+        return "None"
+
 print("\n##########\n# Rootree Word Tool\n##########")
 
 #Load the site info from the crawler
@@ -91,7 +109,10 @@ for page in pages:
         print("Error",in_file,e)
         continue
     
-    temp = page['address'] + "<br>" + temp
+    cache_path = site_name + "/cache/" + page['title'].replace("â€“","") + ".dat"
+    meta = get_meta(cache_path)
+
+    temp = "<a href='" + page['address'] + "'>" + page['address'] + "</a>" + "<br><br>Meta: " + meta + "<br><br>"  + temp
     temp = re.sub(r"<img [^>]+>","(Image)",temp)
 
     try:
