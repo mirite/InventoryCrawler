@@ -47,6 +47,7 @@ def create_title(url):
   title=title.replace(":","")
   title=title.replace("|","")
   title=title.replace('"',"")
+  title=title.replace('–',"")
   title=title.replace("\n","")
   title=title.replace("<title>","")
   return title
