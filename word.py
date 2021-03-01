@@ -8,7 +8,7 @@ import os.path
 from os import path
 import json
 
-site_name = "rootree2"
+site_name = "rootree"
 
 #Load the site info from the crawler
 def load_config(site_name):
@@ -35,19 +35,29 @@ def get_pages(config):
 
 def get_path(config, page, ext):
 
-    relative_path = page["address"].replace(config["path"],"")
+    relative_path = page["address"].replace(config["path"],"").replace("\n","").strip()
 
-    if(len(relative_path) > 0):
+    if(relative_path[0] == "/"):
+        relative_path = relative_path[1:]
+
+    
+    if(len(relative_path) > 1 and "/" in relative_path):
 
         if(relative_path[len(relative_path)-1]) == "/":
-            relative_path = relative_path[0:len(relative_path)-1] + ext
-        else:
-            relative_path = relative_path + ext
+            relative_path = relative_path[0:len(relative_path)-1]
+
+        split_path = relative_path.rsplit("/",1)
+        file_name = split_path[1]
+        relative_path = split_path [0] + "/"
+        
+        if not ext in file_name:
+            file_name = file_name + ext
 
     else:
-        relative_path = "index" + ext
+        file_name = "index" + ext
+        relative_path = ""
 
-    return relative_path
+    return relative_path, file_name
 
 print("\n##########\n# Rootree Word Tool\n##########")
 
@@ -55,19 +65,27 @@ print("\n##########\n# Rootree Word Tool\n##########")
 config = load_config(site_name)
 pages = get_pages(config)
 
-base_out = site_name + "/word"
-base_in = site_name + "/converted"
+base_out = site_name + "/word/"
+base_in = site_name + "/converted/"
 
 in_ext = ".html"
 out_ext = ".docx"
 
-if not os.path.exists(base_out):
-    os.makedirs(base_out)
-
 for page in pages:
 
-    in_path = base_in + get_path(config, page, in_ext)
-    out_path = base_out + get_path(config, page, out_ext)
+    rel_in_path, in_file = get_path(config, page, in_ext)
+    rel_out_path, out_file = get_path(config, page, out_ext)
 
+    in_path = base_in + rel_in_path + in_file
+    out_path = base_out + rel_out_path + out_file
+
+    if not os.path.exists(base_out + rel_out_path):
+        os.makedirs(base_out + rel_out_path)
+    
     print(in_path, out_path)
-    output = pypandoc.convert(source=in_path, format='html', to='docx', outputfile=out_path, extra_args=['-RTS'])
+    print(in_file, out_file)
+
+    try:
+        output = pypandoc.convert_file(in_path, format='html', to='docx', outputfile=out_path, extra_args=['-RTS'])
+    except Exception as e:
+        print("Error",in_file,e)
