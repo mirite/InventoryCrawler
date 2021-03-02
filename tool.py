@@ -47,6 +47,8 @@ def create_title(url):
   title=title.replace(":","")
   title=title.replace("|","")
   title=title.replace('"',"")
+  title=title.replace('–',"")
+  title=title.replace("\n","")
   title=title.replace("<title>","")
   return title
 
@@ -144,6 +146,7 @@ for link_object in page_list:
   #Parse the HTML
   soup = BeautifulSoup(page.text, 'html.parser')
   current_title = create_title(str(soup.find('title')))
+  page_id="None"
 
   try:
     matches= re.findall(r'page\-id\-([\d]+)',page.text)
@@ -206,7 +209,7 @@ for link_object in page_list:
       #Various checks to make sure link should be followed
       link_in_scope = (domain in l or l[0] == "/" or not "http" in l)
       link_not_an_anchor = l[0] != "#"
-      link_valid_type = not ".png" in l and not "?s=" in l and not ".jpg" in l and not ".pdf" in l and not ".webp" in l and not ".svg" in l and not "tel:" in l and not "javascript:void" in l and not "mailto:" in l and not "fax:" in l and not "ts3server:" in l and not "callto:" in l
+      link_valid_type = not ".png" in l and not ".gif" in l and not "?s=" in l and not ".jpg" in l and not ".pdf" in l and not ".webp" in l and not ".svg" in l and not "tel:" in l and not "javascript:void" in l and not "mailto:" in l and not "fax:" in l and not "ts3server:" in l and not "callto:" in l
       link_not_excluded_dir = not "/uploads/" in l
 
       #Store a copy of unprocessed link

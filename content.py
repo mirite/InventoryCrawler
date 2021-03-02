@@ -117,11 +117,15 @@ pages = get_pages(config)
 
 print("Converting pages from",config['path'],"crawled on",config['created'],"\n")
 
+base_path = site_name + '/converted/'
+if not os.path.exists(base_path):
+  os.makedirs(base_path)
+
 #Loop through all pages
 for page in pages:
 
   try:
-    cache_path = site_name + "/cache/" + page['title'] + ".dat"
+    cache_path = site_name + "/cache/" + page['title'].replace("â€“","") + ".dat"
     with open(cache_path, "r", encoding="utf-8") as cache_file:
 
         content = cache_file.read()
@@ -194,16 +198,37 @@ for page in pages:
             
           total_changes = total_changes + changes
 
-          base_path = site_name + '/converted/' + title
-          if not os.path.exists(base_path):
-            os.makedirs(base_path)
+          relative_path = page["address"].replace(config["path"],"")
 
-          if not os.path.exists(base_path + "/images"):
-            os.makedirs(base_path + "/images")
+          if(relative_path[0] == "/"):
+              relative_path = relative_path[1:]
+
+          print(relative_path)
           
+          if(len(relative_path) > 1 and "/" in relative_path):
 
-          converted_path = base_path + "/" + title + ".html"
-          content_path = base_path + "/_" + title + ".html"
+            if(relative_path[len(relative_path)-1]) == "/":
+              relative_path = relative_path[0:len(relative_path)-1]
+
+            split_path = relative_path.rsplit("/",1)
+            file_name = split_path[1]
+            relative_path = split_path [0] + "/"
+            
+            if not ".html" in file_name:
+              file_name = file_name + ".html"
+
+          else:
+              file_name = "index.html"
+              relative_path = ""
+          
+          converted_path = base_path + relative_path + file_name.replace(".html","_o.html")
+          content_path = base_path + relative_path + file_name
+
+          image_path = base_path + relative_path + "images"
+          print(converted_path, content_path, image_path)
+          
+          if not os.path.exists(image_path):
+            os.makedirs(image_path)
 
           for i in a.find_all('img'):
             if(i.has_attr('src')):
@@ -216,7 +241,7 @@ for page in pages:
                 split_src = src.split(".")
                 #file_type = "." + split_src[len(split_src)-1]
                 file_type = ".jpg"
-                new_path = base_path + "/images/" + "image_" + str(image_index) + file_type
+                new_path = image_path + "/image_" + str(image_index) + file_type
                 urllib.request.urlretrieve(src, new_path)
                 i['src'] = "images/" + "image_" + str(image_index) + file_type
                 image_index = image_index + 1
